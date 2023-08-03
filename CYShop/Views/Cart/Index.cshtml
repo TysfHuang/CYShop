@@ -1,0 +1,61 @@
+﻿@model List<CartItem>
+
+@{
+    ViewData["Title"] = "購物車清單";
+}
+
+<h1>購物車清單</h1>
+
+@{
+    int Total = 0;
+}
+
+@if (Model != null && Model.Count != 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>產品名稱</th>
+                <th>單價</th>
+                <th>數量</th>
+                <th>小計</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.ProductName
+                    </td>
+                    <td>
+                        @item.Price
+                    </td>
+                    <td>
+                        @item.Quantity
+                    </td>
+                    <td>
+                        @(item.Quantity * item.Price)
+                        @{
+                            Total += (int)(item.Quantity * item.Price);
+                        }
+                    </td>
+                    <td>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.ProductID">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col"><h5>總計: @Total</h5></div>
+    </div>
+    <div class="container">
+        <a class="btn btn-primary" asp-controller="Product" asp-action="Index">繼續購物</a>
+        <a asp-controller="Order" asp-action="Checkout" class="btn btn-danger">結帳</a>
+    </div>
+}
+else
+{
+    <p class="text-center text-black">購物車內尚無產品</p>
+}

@@ -1,0 +1,41 @@
+﻿@model List<ProductCategory>
+
+@{
+    ViewData["Title"] = "產品清單";
+}
+
+<div class="row">
+    @await Html.PartialAsync("_Sidebar", Model)
+    <div class="col-sm-10 pt-2">
+        <div class="input-group">
+            <input type="text" name="searchString" id="searchString" class="form-control" placeholder="Search">
+            <div class="input-group-append">
+                <input type="submit" id="searchBtn" class="btn btn-primary" value="搜尋" />
+                <a href="/" id="defaultView" class="btn btn-secondary my-2 my-sm-0">返回預設顯示</a>
+            </div>
+        </div>
+        <div id="sortOrder" class="my-2">
+            <button id="sortDefault" type="button" class="btn btn-outline-success active">預設排序</button>
+            <button id="sortPrice" type="button" class="btn btn-outline-success">價格排序</button>
+        </div>
+        <div id="loadingSpinner" class="spinner-border m-5" role="status">
+            <span class="sr-only"></span>
+        </div>
+        <div class="album py-2 bg-light">
+            <div class="container">
+                <div id="productList" class="row row-cols-5 g-3">
+                </div>
+            </div>
+        </div>
+        <div id="paginedList">
+
+        </div>
+    </div>
+</div>
+
+<!--
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        asp-fallback-src="~/lib/jquery-3.6.1/jquery-3.6.1.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+-->
+

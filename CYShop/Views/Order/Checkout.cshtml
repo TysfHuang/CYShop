@@ -1,0 +1,85 @@
+﻿@model OrderViewModel
+
+@{
+    ViewData["Title"] = "結帳";
+    int cartItemCount = 0;
+    if (ViewData["Cartlist"] != null)
+    {
+        foreach (var item in (List<CartItem>)ViewData["Cartlist"])
+        {
+            cartItemCount += (int)item.Quantity;
+        }
+    }
+}
+
+@if (cartItemCount != 0)
+{
+    <div class="container">
+        <main>
+            <div class="py-5 text-center">
+                <h2>結帳</h2>
+            </div>
+            <div class="row g-5">
+                <div class="col-md-5 col-lg-4 order-md-last">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-primary">購物清單</span>
+                        <span class="badge bg-primary rounded-pill">@cartItemCount.ToString()</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        @foreach (var item in (List<CartItem>)ViewData["Cartlist"])
+                        {
+                            <li class="list-group-item d-flex justify-content-between lh-sm">
+                                <div>
+                                    <h6 class="my-0">@Html.DisplayFor(modelitem => item.ProductName)</h6>
+                                    <small class="text-muted">x @Html.DisplayFor(modelitem => item.Quantity)</small>
+                                </div>
+                                <span class="text-muted">@Html.DisplayFor(modelitem => item.Price)</span>
+                            </li>
+                        }
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>總計</span>
+                            <strong>$@ViewData["TotalPrice"]</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-7 col-lg-8">
+                    <h4 class="mb-3">付款人資料</h4>
+                    <form asp-action="Checkout" method="post" class="needs-validation" novalidate="">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label asp-for="UserName" class="control-label" ></label>
+                                <input asp-for="UserName" class="form-control" style="background-color:lightgray" readonly />
+                            </div>
+                            <h4 class="mb-3">收件人資料</h4>
+                            <div class="col-12">
+                                <label asp-for="ReceiverName" class="control-label"></label>
+                                <input asp-for="ReceiverName" class="form-control" />
+                                <span asp-validation-for="ReceiverName" class="text-danger"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="ReceiverPhone" class="control-label"></label>
+                                <input asp-for="ReceiverPhone" class="form-control" />
+                                <span asp-validation-for="ReceiverPhone" class="text-danger"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="ReceiverAddress" class="control-label"></label>
+                                <input asp-for="ReceiverAddress" class="form-control" />
+                                <span asp-validation-for="ReceiverAddress" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <input type="submit" value="建立訂單" class="btn btn-primary" />
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">返回繼續購物</a>
+                            </div>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </main>
+    </div>
+}
+else
+{
+    <h4>購物車內尚無產品</h4>
+}
