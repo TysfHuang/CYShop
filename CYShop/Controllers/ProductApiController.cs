@@ -26,7 +26,7 @@ namespace CYShop.Controllers
             _repository = repository;
         }
 
-        private int GetPageSize()
+        public int GetPageSize()
         {
             return PageSize;
         }
@@ -55,9 +55,9 @@ namespace CYShop.Controllers
 
         [HttpGet("search/{category}")]
         public async Task<ActionResult<string>> Get(
-            string category, 
+            string category,
             string? searchString,
-            string? sortOrder, 
+            string? sortOrder,
             int? pageNum)
         {
             Expression<Func<Product, bool>> categoryQuery = p => true;
@@ -67,7 +67,7 @@ namespace CYShop.Controllers
             category = HtmlEncoder.Default.Encode(category);
             searchString = searchString != null ? HtmlEncoder.Default.Encode(searchString) : null;
 
-            if(category != "ALL")
+            if (category != "ALL")
             {
                 categoryQuery = p => p.ProductCategory.Name == category;
             }
@@ -100,7 +100,8 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
-            var obj = new {
+            var obj = new
+            {
                 data = result,
                 maxPageNum = (int)Math.Ceiling(maxProductNum / (double)GetPageSize())
             };

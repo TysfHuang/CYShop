@@ -68,14 +68,22 @@ namespace CYShopTests
         {
             var r = _products.Where(p => p.ProductCategory.Name == categoryName);
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
-            string resultJson = JsonSerializer.Serialize(_products
-                .Where(p => p.ProductCategory.Name == categoryName)
+            _products = _products
+                .Where(p => p.ProductCategory.Name == categoryName);
+            int maxPageNum = _products.Count();
+            List<ProductDTO> resultJson = _products
+                .Take(_controller.GetPageSize())
                 .Select(p => new ProductDTO(p))
-                .ToList());
+                .ToList();
+            var obj = new
+            {
+                data = resultJson,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+            };
 
-            var result = _controller.Get(categoryName, "").Result.Value;
+            var result = _controller.Get(categoryName, "", null, null).Result.Value;
 
-            Assert.That(result, Is.EqualTo(resultJson));
+            Assert.That(result, Is.EqualTo(JsonSerializer.Serialize(obj)));
         }
 
         [Test]
@@ -85,7 +93,7 @@ namespace CYShopTests
             var r = _products.Where(p => p.ProductCategory.Name == categoryName);
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
 
-            var result = _controller.Get(categoryName, "").Result.Result;
+            var result = _controller.Get(categoryName, "", null, null).Result.Result;
 
             Assert.That(result, Is.EqualTo(null));
         }
@@ -97,14 +105,22 @@ namespace CYShopTests
         {
             var r = _products.Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
-            string resultJson = JsonSerializer.Serialize(_products
-                .Where(p => p.Name.ToLower().Contains(searchString.ToLower()))
+            _products = _products
+                .Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
+            int maxPageNum = _products.Count();
+            List<ProductDTO> resultJson = _products
+                .Take(_controller.GetPageSize())
                 .Select(p => new ProductDTO(p))
-                .ToList());
+                .ToList();
+            var obj = new
+            {
+                data = resultJson,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+            };
 
-            var result = _controller.Get("All", searchString).Result.Value;
+            var result = _controller.Get("All", searchString, null, null).Result.Value;
 
-            Assert.That(result, Is.EqualTo(resultJson));
+            Assert.That(result, Is.EqualTo(JsonSerializer.Serialize(obj)));
         }
 
         [TestCase("Wrong")]
@@ -113,7 +129,7 @@ namespace CYShopTests
             var r = _products.Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
 
-            var result = _controller.Get("All", searchString).Result.Result;
+            var result = _controller.Get("All", searchString, null, null).Result.Result;
 
             Assert.That(result, Is.EqualTo(null));
         }
@@ -131,15 +147,23 @@ namespace CYShopTests
                 p => p.ProductCategory.Name == categoryName &&
                 p.Name.ToLower().Contains(searchString.ToLower()));
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
-            string resultJson = JsonSerializer.Serialize(_products
+            _products = _products
                 .Where(p => p.ProductCategory.Name == categoryName &&
-                       p.Name.ToLower().Contains(searchString.ToLower()))
+                       p.Name.ToLower().Contains(searchString.ToLower()));
+            int maxPageNum = _products.Count();
+            List<ProductDTO> resultJson = _products
+                .Take(_controller.GetPageSize())
                 .Select(p => new ProductDTO(p))
-                .ToList());
+                .ToList();
+            var obj = new
+            {
+                data = resultJson,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+            };
 
-            var result = _controller.Get(categoryName, searchString).Result.Value;
+            var result = _controller.Get(categoryName, searchString, null, null).Result.Value;
 
-            Assert.That(result, Is.EqualTo(resultJson));
+            Assert.That(result, Is.EqualTo(JsonSerializer.Serialize(obj)));
         }
 
         [Test]
@@ -152,7 +176,7 @@ namespace CYShopTests
                 p.Name.ToLower().Contains(searchString.ToLower()));
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
 
-            var result = _controller.Get(categoryName, searchString).Result.Result;
+            var result = _controller.Get(categoryName, searchString, null, null).Result.Result;
 
             Assert.That(result, Is.EqualTo(null));
         }
