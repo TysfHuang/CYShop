@@ -80,10 +80,11 @@ namespace CYShopTests
                 data = resultJson,
                 maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
             };
+            var jsonObj = JsonSerializer.Serialize(obj);
 
             var result = _controller.Get(categoryName, "", null, null).Result.Value;
 
-            Assert.That(result, Is.EqualTo(JsonSerializer.Serialize(obj)));
+            Assert.That(result, Is.EqualTo(jsonObj));
         }
 
         [Test]
@@ -117,10 +118,11 @@ namespace CYShopTests
                 data = resultJson,
                 maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
             };
+            var jsonObj = JsonSerializer.Serialize(obj);
 
             var result = _controller.Get("All", searchString, null, null).Result.Value;
 
-            Assert.That(result, Is.EqualTo(JsonSerializer.Serialize(obj)));
+            Assert.That(result, Is.EqualTo(jsonObj));
         }
 
         [TestCase("Wrong")]
@@ -160,10 +162,11 @@ namespace CYShopTests
                 data = resultJson,
                 maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
             };
+            var jsonObj = JsonSerializer.Serialize(obj);
 
             var result = _controller.Get(categoryName, searchString, null, null).Result.Value;
 
-            Assert.That(result, Is.EqualTo(JsonSerializer.Serialize(obj)));
+            Assert.That(result, Is.EqualTo(jsonObj));
         }
 
         [Test]
