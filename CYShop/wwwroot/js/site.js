@@ -96,8 +96,8 @@ function UpdateCartSummary() {
     let quantity = 0;
     let totalPrice = 0;
     for (let i = 0; i < cartList.length; i++) {
-        quantity += cartList[i].Quantity;
-        totalPrice += cartList[i].Price;
+        quantity += cartList[i].quantity;
+        totalPrice += cartList[i].price;
     }
     $("#cartSummary").text("購物車(" + quantity.toString() + ") 總價: $" + totalPrice.toString());
     CheckAndShowCheckoutButton();
@@ -149,6 +149,12 @@ function SetPaginedList(totalPage) {
 
 function SetProductListAsync(promises) {
     promises.then((data) => {
+        if (data == null) {
+            $("#productList").empty();
+            $("#productList").append("<p>沒有搜尋到符合的產品</p>");
+            SetPaginedList(1);
+            return;
+        }
         SetPageProductList(data["data"]);
         if (shouldUpdatePaginedList) {
             SetPaginedList(data["maxPageNum"]);
@@ -165,14 +171,14 @@ function SetPageProductList(newProductList) {
     }
     let productList = $("#productList");
     for (let i = 0; i < newProductList.length; i++) {
-        let imgPath = newProductList[i]["CoverImagePath"] == 'need to update'
+        let imgPath = newProductList[i]["coverImagePath"] == 'need to update'
             ? '/example.jpg'
-            : newProductList[i]["CoverImagePath"];
+            : newProductList[i]["coverImagePath"];
         productList.append(
             GetProductTemplete(
-                newProductList[i]["ID"],
-                newProductList[i]["Name"],
-                newProductList[i]["Price"],
+                newProductList[i]["id"],
+                newProductList[i]["name"],
+                newProductList[i]["price"],
                 imgPath));
     }
 }
@@ -203,6 +209,7 @@ function SetProductListAndCloseLoadingSpinner(promises) {
 
 function SearchProductEvent() {
     let promises = GetProductsByCondiction(1, $("#searchString").val());
+    shouldUpdatePaginedList = true;
     SetProductListAndCloseLoadingSpinner(promises);
 }
 

@@ -20,13 +20,18 @@ namespace CYShop.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public ActionResult<string> Get()
         {
             List<CartItem>? cartList = SessionHelper.Get<List<CartItem>>(HttpContext.Session, "cart");
-            return JsonSerializer.Serialize(cartList);
+            return Ok(cartList);
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<string>> Post(CartItem cart)
         {
             if (_context.Products == null)
@@ -75,7 +80,7 @@ namespace CYShop.Controllers
                 }
                 SessionHelper.Set<List<CartItem>>(HttpContext.Session, "cart", cartList);
             }
-            return JsonSerializer.Serialize(cartList);
+            return Ok(cartList);
         }
     }
 }

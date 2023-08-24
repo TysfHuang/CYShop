@@ -32,17 +32,16 @@ namespace CYShop.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Get()
         {
-            var product = await Task.FromResult(_repository.Find(p => true).Select(p => new ProductDTO(p)).ToList());
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return JsonSerializer.Serialize(product);
+            return await Get("ALL", null, null, 1);
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Get(uint id)
         {
             var product = await Task.FromResult(_repository.FindById(id));
@@ -50,10 +49,12 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
-            return JsonSerializer.Serialize(new ProductDTO(product));
+            return Ok(new ProductDTO(product));
         }
 
         [HttpGet("search/{category}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Get(
             string category,
             string? searchString,
@@ -95,8 +96,8 @@ namespace CYShop.Controllers
                 .Take(GetPageSize())
                 .Select(p => new ProductDTO(p))
                 .ToList());
-
-            if (result == null)
+            
+            if (result == null || !result.Any())
             {
                 return NotFound();
             }
@@ -105,7 +106,7 @@ namespace CYShop.Controllers
                 data = result,
                 maxPageNum = (int)Math.Ceiling(maxProductNum / (double)GetPageSize())
             };
-            return JsonSerializer.Serialize(obj);
+            return Ok(obj);
         }
     }
 }
