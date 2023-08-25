@@ -26,7 +26,7 @@ namespace CYShop.Controllers
             _repository = repository;
         }
 
-        public int GetPageSize()
+        public static int GetPageSize()
         {
             return PageSize;
         }

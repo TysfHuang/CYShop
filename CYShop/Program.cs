@@ -18,6 +18,7 @@ builder.Services.AddScoped<ICYShopRepository<ProductOrder, uint>, ProductOrderRe
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -73,6 +74,8 @@ else
 {
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 using (var scope = app.Services.CreateScope())
