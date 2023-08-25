@@ -28,15 +28,13 @@ namespace CYShop.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<string>> Post(CartItem cart)
         {
             if (_context.Products == null)
             {
-                return NoContent();
+                return BadRequest();
             }
 
             var product = await _context.Products
@@ -45,7 +43,7 @@ namespace CYShop.Controllers
 
             if(product == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             bool isValid =
@@ -80,7 +78,7 @@ namespace CYShop.Controllers
                 }
                 SessionHelper.Set<List<CartItem>>(HttpContext.Session, "cart", cartList);
             }
-            return Ok(cartList);
+            return CreatedAtAction(nameof(Get), cartList);
         }
     }
 }
