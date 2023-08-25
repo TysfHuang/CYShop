@@ -28,7 +28,7 @@ namespace CYShop.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -80,7 +80,7 @@ namespace CYShop.Controllers
                 }
                 SessionHelper.Set<List<CartItem>>(HttpContext.Session, "cart", cartList);
             }
-            return Ok(cartList);
+            return CreatedAtAction(nameof(Get), cartList);
         }
     }
 }
