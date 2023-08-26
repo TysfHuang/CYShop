@@ -32,11 +32,12 @@ namespace CYShopTests
         public void Get_JsonProductDTO_ById(uint id)
         {
             _repository.Setup(p => p.FindById(id)).Returns(_products.Where(p => p.ID == id).Single());
-            string resultJson = JsonSerializer.Serialize(new ProductDTO(_products.Where(p => p.ID == id).Single()));
+            string expectValue = JsonSerializer.Serialize(new ProductDTO(_products.Where(p => p.ID == id).Single()));
 
-            string? result = _controller.Get(id).Result.Value;
+            var result = ((OkObjectResult)_controller.Get(id).Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(resultJson));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
         [Test]
@@ -54,11 +55,22 @@ namespace CYShopTests
         public void Get_AllJsonProductDTOs_NoneInput()
         {
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(_products);
-            string resultJson = JsonSerializer.Serialize(_products.Select(p => new ProductDTO(p)).ToList());
+            int maxPageNum = _products.Count();
+            List<ProductDTO> tempList = _products
+                .Take(ProductApiController.GetPageSize())
+                .Select(p => new ProductDTO(p))
+                .ToList();
+            var obj = new
+            {
+                data = tempList,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)ProductApiController.GetPageSize())
+            };
+            var expectValue = JsonSerializer.Serialize(obj);
 
-            string? result = _controller.Get().Result.Value;
+            var result = ((OkObjectResult)_controller.Get().Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(resultJson));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
         [TestCase("CPU")]
@@ -71,20 +83,21 @@ namespace CYShopTests
             var products = _products
                 .Where(p => p.ProductCategory.Name == categoryName);
             int maxPageNum = products.Count();
-            List<ProductDTO> resultJson = products
-                .Take(_controller.GetPageSize())
+            List<ProductDTO> tempList = products
+                .Take(ProductApiController.GetPageSize())
                 .Select(p => new ProductDTO(p))
                 .ToList();
             var obj = new
             {
-                data = resultJson,
-                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+                data = tempList,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)ProductApiController.GetPageSize())
             };
-            var jsonObj = JsonSerializer.Serialize(obj);
+            var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = _controller.Get(categoryName, "", null, null).Result.Value;
+            var result = ((OkObjectResult)_controller.Get(categoryName, "", null, null).Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(jsonObj));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
         [Test]
@@ -96,33 +109,34 @@ namespace CYShopTests
 
             var result = _controller.Get(categoryName, "", null, null).Result.Result;
 
-            Assert.That(result, Is.EqualTo(null));
+            Assert.That(result, Is.TypeOf(typeof(NotFoundResult)));
         }
 
         [TestCase("")]
         [TestCase("core")]
         [TestCase("asus")]
-        public void Get_JsonProductDTOs_BySearch(string searchString)
+        public void Get_JsonProductDTOs_ByStringSearch(string searchString)
         {
             var r = _products.Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
             var products = _products
                 .Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
             int maxPageNum = products.Count();
-            List<ProductDTO> resultJson = products
-                .Take(_controller.GetPageSize())
+            List<ProductDTO> tempList = products
+                .Take(ProductApiController.GetPageSize())
                 .Select(p => new ProductDTO(p))
                 .ToList();
             var obj = new
             {
-                data = resultJson,
-                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+                data = tempList,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)ProductApiController.GetPageSize())
             };
-            var jsonObj = JsonSerializer.Serialize(obj);
+            var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = _controller.Get("ALL", searchString, null, null).Result.Value;
+            var result = ((OkObjectResult)_controller.Get("ALL", searchString, null, null).Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(jsonObj));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
         /// <summary>
@@ -135,21 +149,22 @@ namespace CYShopTests
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
             var products = _products.Where(p => true);
             int maxPageNum = products.Count();
-            List<ProductDTO> resultJson = products
-                .Skip(_controller.GetPageSize())
-                .Take(_controller.GetPageSize())
+            List<ProductDTO> tempList = products
+                .Skip(ProductApiController.GetPageSize())
+                .Take(ProductApiController.GetPageSize())
                 .Select(p => new ProductDTO(p))
                 .ToList();
             var obj = new
             {
-                data = resultJson,
-                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+                data = tempList,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)ProductApiController.GetPageSize())
             };
-            var jsonObj = JsonSerializer.Serialize(obj);
+            var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = _controller.Get("ALL", "", null, 2).Result.Value;
+            var result = ((OkObjectResult)_controller.Get("ALL", "", null, 2).Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(jsonObj));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
         [TestCase("priceHighToLow")]
@@ -171,20 +186,21 @@ namespace CYShopTests
             }
             _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
             int maxPageNum = products.Count();
-            List<ProductDTO> resultJson = products
-                .Take(_controller.GetPageSize())
+            List<ProductDTO> tempList = products
+                .Take(ProductApiController.GetPageSize())
                 .Select(p => new ProductDTO(p))
                 .ToList();
             var obj = new
             {
-                data = resultJson,
-                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+                data = tempList,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)ProductApiController.GetPageSize())
             };
-            var jsonObj = JsonSerializer.Serialize(obj);
+            var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = _controller.Get("ALL", "", null, null).Result.Value;
+            var result = ((OkObjectResult)_controller.Get("ALL", "", null, null).Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(jsonObj));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
         [TestCase("Wrong")]
@@ -195,15 +211,12 @@ namespace CYShopTests
 
             var result = _controller.Get("All", searchString, null, null).Result.Result;
 
-            Assert.That(result, Is.EqualTo(null));
+            Assert.That(result, Is.TypeOf(typeof(NotFoundResult)));
         }
 
         [TestCase("CPU", "core")]
-        [TestCase("CPU", "1tb")]
         [TestCase("GPU", "4090")]
-        [TestCase("GPU", "core")]
         [TestCase("SSD", "1t")]
-        [TestCase("SSD", "3t")]
         [TestCase("SSD", "sand")]
         public void Get_JsonProductDTOs_ByCategoryAndSearch(string categoryName, string searchString)
         {
@@ -215,20 +228,36 @@ namespace CYShopTests
                 .Where(p => p.ProductCategory.Name == categoryName &&
                        p.Name.ToLower().Contains(searchString.ToLower()));
             int maxPageNum = products.Count();
-            List<ProductDTO> resultJson = products
-                .Take(_controller.GetPageSize())
+            List<ProductDTO> tempList = products
+                .Take(ProductApiController.GetPageSize())
                 .Select(p => new ProductDTO(p))
                 .ToList();
             var obj = new
             {
-                data = resultJson,
-                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)_controller.GetPageSize())
+                data = tempList,
+                maxPageNum = (int)Math.Ceiling(maxPageNum / (double)ProductApiController.GetPageSize())
             };
-            var jsonObj = JsonSerializer.Serialize(obj);
+            var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = _controller.Get(categoryName, searchString, null, null).Result.Value;
+            var result = ((OkObjectResult)_controller.Get(categoryName, searchString, null, null).Result.Result).Value;
+            string resultJson = JsonSerializer.Serialize(result);
 
-            Assert.That(result, Is.EqualTo(jsonObj));
+            Assert.That(resultJson, Is.EqualTo(expectValue));
+        }
+
+        [TestCase("CPU", "1tb")]
+        [TestCase("GPU", "core")]
+        [TestCase("SSD", "3t")]
+        public void Get_NotFoundResult_WhenNoMatchingCondition(string categoryName, string searchString)
+        {
+            var r = _products.Where(
+                p => p.ProductCategory.Name == categoryName &&
+                p.Name.ToLower().Contains(searchString.ToLower()));
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+
+            var result = _controller.Get(categoryName, searchString, null, null).Result.Result;
+
+            Assert.That(result, Is.TypeOf(typeof(NotFoundResult)));
         }
 
         [Test]
@@ -243,7 +272,7 @@ namespace CYShopTests
 
             var result = _controller.Get(categoryName, searchString, null, null).Result.Result;
 
-            Assert.That(result, Is.EqualTo(null));
+            Assert.That(result, Is.TypeOf(typeof(NotFoundResult)));
         }
 
         private void SetDefaultValue()
