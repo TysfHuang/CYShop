@@ -36,9 +36,10 @@ namespace CYShopTests
             _repository.Setup(p => p.FindByIdAsync(id)).Returns(Task.FromResult(_products.Where(p => p.ID == id).Single()));
             string expectValue = JsonSerializer.Serialize(new ProductDTO(_products.Where(p => p.ID == id).Single()));
 
-            var result = ((OkObjectResult)_controller.Get(id).Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
+            var result = _controller.Get(id).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
@@ -47,10 +48,11 @@ namespace CYShopTests
         {
             _repository.Setup(p => p.FindByIdAsync(1)).Returns(Task.FromResult(_products.Where(p => p.ID == 1).Single()));
 
-            var result = _controller.Get(2).Result.Result as NotFoundResult;
+            var result = _controller.Get(2).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(NotFoundResult)));
             Assert.IsNotNull(result);
-            Assert.That(result.StatusCode, Is.EqualTo(404));
+            Assert.That(((NotFoundResult)result).StatusCode, Is.EqualTo(404));
         }
 
         [Test]
@@ -71,9 +73,10 @@ namespace CYShopTests
             };
             var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = ((OkObjectResult)_controller.Get().Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
-
+            var result = _controller.Get().Result.Result;
+            
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
@@ -99,9 +102,10 @@ namespace CYShopTests
             };
             var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = ((OkObjectResult)_controller.Get(categoryName, "", null, null).Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
+            var result = _controller.Get(categoryName, "", null, null).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
@@ -140,9 +144,10 @@ namespace CYShopTests
             };
             var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = ((OkObjectResult)_controller.Get("ALL", searchString, null, null).Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
+            var result = _controller.Get("ALL", searchString, null, null).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
@@ -169,9 +174,10 @@ namespace CYShopTests
             };
             var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = ((OkObjectResult)_controller.Get("ALL", "", null, 2).Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
+            var result = _controller.Get("ALL", "", null, 2).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
@@ -206,9 +212,10 @@ namespace CYShopTests
             };
             var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = ((OkObjectResult)_controller.Get("ALL", "", null, null).Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
+            var result = _controller.Get("ALL", "", null, null).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
@@ -250,9 +257,10 @@ namespace CYShopTests
             };
             var expectValue = JsonSerializer.Serialize(obj);
 
-            var result = ((OkObjectResult)_controller.Get(categoryName, searchString, null, null).Result.Result).Value;
-            string resultJson = JsonSerializer.Serialize(result);
+            var result = _controller.Get(categoryName, searchString, null, null).Result.Result;
 
+            Assert.That(result, Is.TypeOf(typeof(OkObjectResult)));
+            string resultJson = JsonSerializer.Serialize(((OkObjectResult)result).Value);
             Assert.That(resultJson, Is.EqualTo(expectValue));
         }
 
