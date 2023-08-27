@@ -87,7 +87,7 @@ namespace CYShopTests
             byte[] dummy = System.Text.Encoding.UTF8.GetBytes(sessionValue);
             _session.Setup(x => x.TryGetValue(It.IsAny<string>(), out dummy)).Returns(true); //the out dummy does the trick
             _context.Setup(s => s.Session).Returns(_session.Object);
-            _repository.Setup(r => r.Create(It.IsAny<ProductOrder>())).Returns(orderId);
+            _repository.Setup(r => r.CreateAsync(It.IsAny<ProductOrder>())).Returns(Task.FromResult(orderId));
             _userManager.Setup(s => s.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(user.Id);
             OrderViewModel input = new OrderViewModel() { ReceiverName = "Re1", ReceiverAddress = "Taiwan", 
                                                           ReceiverPhone = "0988999888", UserName = user.UserName };

@@ -15,24 +15,24 @@ namespace CYShop.Repositories
             _context = context;
         }
 
-        public uint Create(Product entity)
+        public async Task<uint> CreateAsync(Product entity)
         {
             _context.Products.Add(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return entity.ID;
         }
 
-        public void Delete(Product entity)
+        public async Task DeleteAsync(Product entity)
         {
             _context.Products.Remove(_context.Products.Single(p => p.ID == entity.ID));
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(Product entity)
+        public async Task UpdateAsync(Product entity)
         {
-            var oriProduct = _context.Products.Single(p => p.ID == entity.ID);
+            var oriProduct = await _context.Products.SingleAsync(p => p.ID == entity.ID);
             _context.Entry(oriProduct).CurrentValues.SetValues(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public IQueryable<Product> Find(Expression<Func<Product, bool>> expression)
@@ -40,9 +40,9 @@ namespace CYShop.Repositories
             return _context.Products.Where(expression);
         }
 
-        public Product FindById(uint id)
+        public async Task<Product> FindByIdAsync(uint id)
         {
-            return _context.Products.SingleOrDefault(p => p.ID == id);
+            return await _context.Products.SingleOrDefaultAsync(p => p.ID == id);
         }
     }
 }

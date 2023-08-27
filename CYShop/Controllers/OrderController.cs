@@ -56,7 +56,7 @@ namespace CYShop.Controllers
                         OrderDate = DateTime.Now
                     };
                     order.SetOrderItems(cart);
-                    uint id = await Task.FromResult(_repository.Create(order));
+                    uint id = await _repository.CreateAsync(order);
                     SessionHelper.Remove(HttpContext.Session, "cart");
                     return RedirectToAction("Result");
                 }

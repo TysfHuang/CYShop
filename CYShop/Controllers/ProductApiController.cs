@@ -44,7 +44,7 @@ namespace CYShop.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Get(uint id)
         {
-            var product = await Task.FromResult(_repository.FindById(id));
+            var product = await _repository.FindByIdAsync(id);
             if (product == null)
             {
                 return NotFound();
@@ -90,23 +90,28 @@ namespace CYShop.Controllers
                 case "priceLowToHigh":
                     products = products.OrderBy(p => p.Price); break;
             }
-            int maxProductNum = products.Count();
-            var result = await Task.FromResult(products
+            int totalNumOfProduct = products.Count();
+            var result = await products
                 .Skip((currentPage - 1) * GetPageSize())
                 .Take(GetPageSize())
                 .Select(p => new ProductDTO(p))
-                .ToList());
+                .ToListAsync();
             
             if (result == null || !result.Any())
             {
                 return NotFound();
             }
-            var obj = new
-            {
-                data = result,
-                maxPageNum = (int)Math.Ceiling(maxProductNum / (double)GetPageSize())
-            };
+            var obj = ConvertToResponseFormat(result, totalNumOfProduct);
             return Ok(obj);
+        }
+
+        private static object ConvertToResponseFormat(List<ProductDTO> productList, int totalNumOfProduct)
+        {
+            return new
+            {
+                data = productList,
+                maxPageNum = (int)Math.Ceiling(totalNumOfProduct / (double)GetPageSize())
+            };
         }
     }
 }

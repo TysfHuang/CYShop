@@ -1,5 +1,6 @@
 ﻿using CYShop.Data;
 using CYShop.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CYShop.Repositories
@@ -13,24 +14,24 @@ namespace CYShop.Repositories
             _context = context;
         }
 
-        public uint Create(ProductOrder entity)
+        public async Task<uint> CreateAsync(ProductOrder entity)
         {
             _context.ProductOrders.Add(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return entity.ID;
         }
 
-        public void Delete(ProductOrder entity)
+        public async Task DeleteAsync(ProductOrder entity)
         {
             _context.ProductOrders.Remove(_context.ProductOrders.Single(p => p.ID == entity.ID));
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(ProductOrder entity)
+        public async Task UpdateAsync(ProductOrder entity)
         {
-            var oriProductOrder = _context.ProductOrders.Single(p => p.ID == entity.ID);
+            var oriProductOrder = await _context.ProductOrders.SingleAsync(p => p.ID == entity.ID);
             _context.Entry(oriProductOrder).CurrentValues.SetValues(entity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public IQueryable<ProductOrder> Find(Expression<Func<ProductOrder, bool>> expression)
@@ -38,9 +39,9 @@ namespace CYShop.Repositories
             return _context.ProductOrders.Where(expression);
         }
 
-        public ProductOrder FindById(uint id)
+        public async Task<ProductOrder> FindByIdAsync(uint id)
         {
-            return _context.ProductOrders.SingleOrDefault(p => p.ID == id);
+            return await _context.ProductOrders.SingleOrDefaultAsync(p => p.ID == id);
         }
     }
 }

@@ -6,13 +6,13 @@ namespace CYShop.Repositories
     public interface ICYShopRepository<TEntity, TKey>
         where TEntity : class
     {
-        TKey Create(TEntity entity);
+        Task<TKey> CreateAsync(TEntity entity);
 
-        void Update(TEntity entity);
+        Task UpdateAsync(TEntity entity);
 
-        void Delete(TEntity entity);
+        Task DeleteAsync(TEntity entity);
 
-        TEntity FindById(TKey id);
+        Task<TEntity> FindByIdAsync(TKey id);
 
         IQueryable<TEntity> Find(Expression<Func<TEntity, bool>> expression);
     }

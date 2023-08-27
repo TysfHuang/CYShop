@@ -9,6 +9,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
+using MockQueryable.Moq;
 
 namespace CYShopTests
 {
@@ -31,7 +33,7 @@ namespace CYShopTests
         [TestCase((uint)2)]
         public void Get_JsonProductDTO_ById(uint id)
         {
-            _repository.Setup(p => p.FindById(id)).Returns(_products.Where(p => p.ID == id).Single());
+            _repository.Setup(p => p.FindByIdAsync(id)).Returns(Task.FromResult(_products.Where(p => p.ID == id).Single()));
             string expectValue = JsonSerializer.Serialize(new ProductDTO(_products.Where(p => p.ID == id).Single()));
 
             var result = ((OkObjectResult)_controller.Get(id).Result.Result).Value;
@@ -43,7 +45,7 @@ namespace CYShopTests
         [Test]
         public void Get_NotFound_ByWrongId()
         {
-            _repository.Setup(p => p.FindById(1)).Returns(_products.Where(p => p.ID == 1).Single());
+            _repository.Setup(p => p.FindByIdAsync(1)).Returns(Task.FromResult(_products.Where(p => p.ID == 1).Single()));
 
             var result = _controller.Get(2).Result.Result as NotFoundResult;
 
@@ -54,7 +56,9 @@ namespace CYShopTests
         [Test]
         public void Get_AllJsonProductDTOs_NoneInput()
         {
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(_products);
+            var testDataList = GetTestDataList().Select(p => p);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
             int maxPageNum = _products.Count();
             List<ProductDTO> tempList = _products
                 .Take(ProductApiController.GetPageSize())
@@ -78,8 +82,9 @@ namespace CYShopTests
         [TestCase("SSD")]
         public void Get_JsonProductDTOs_ByCategory(string categoryName)
         {
-            var r = _products.Where(p => p.ProductCategory.Name == categoryName);
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var testDataList = GetTestDataList().Where(p => p.ProductCategory.Name == categoryName);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
             var products = _products
                 .Where(p => p.ProductCategory.Name == categoryName);
             int maxPageNum = products.Count();
@@ -104,8 +109,9 @@ namespace CYShopTests
         public void Get_NoneProduct_ByNoMatchingCategory()
         {
             string categoryName = "Wrong";
-            var r = _products.Where(p => p.ProductCategory.Name == categoryName);
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var testDataList = GetTestDataList().Where(p => p.ProductCategory.Name == categoryName);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
 
             var result = _controller.Get(categoryName, "", null, null).Result.Result;
 
@@ -117,8 +123,9 @@ namespace CYShopTests
         [TestCase("asus")]
         public void Get_JsonProductDTOs_ByStringSearch(string searchString)
         {
-            var r = _products.Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var testDataList = GetTestDataList().Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
             var products = _products
                 .Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
             int maxPageNum = products.Count();
@@ -145,8 +152,9 @@ namespace CYShopTests
         [Test]
         public void Get_JsonProductDTOs_OnPageTwo()
         {
-            var r = _products.Where(p => true);
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var testDataList = GetTestDataList().Where(p => true);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
             var products = _products.Where(p => true);
             int maxPageNum = products.Count();
             List<ProductDTO> tempList = products
@@ -171,20 +179,21 @@ namespace CYShopTests
         [TestCase("priceLowToHigh")]
         public void Get_JsonProductDTOs_SortedByPrice(string currentSortOrder)
         {
-            var r = _products;
+            var testDataList = GetTestDataList().Select(p => p);
             var products = _products;
             switch (currentSortOrder)
             {
                 case "priceHighToLow":
-                    r = r.OrderByDescending(p => p.Price);
+                    testDataList = testDataList.OrderByDescending(p => p.Price);
                     products = products.OrderByDescending(p => p.Price);
                     break;
                 case "priceLowToHigh":
-                    r = r.OrderBy(p => p.Price);
+                    testDataList = testDataList.OrderBy(p => p.Price);
                     products = products.OrderBy(p => p.Price);
                     break;
             }
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
             int maxPageNum = products.Count();
             List<ProductDTO> tempList = products
                 .Take(ProductApiController.GetPageSize())
@@ -206,8 +215,9 @@ namespace CYShopTests
         [TestCase("Wrong")]
         public void Get_NoneProduct_ByNoMatchingSearchString(string searchString)
         {
-            var r = _products.Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var testDataList = GetTestDataList().Where(p => p.Name.ToLower().Contains(searchString.ToLower()));
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
 
             var result = _controller.Get("All", searchString, null, null).Result.Result;
 
@@ -220,10 +230,11 @@ namespace CYShopTests
         [TestCase("SSD", "sand")]
         public void Get_JsonProductDTOs_ByCategoryAndSearch(string categoryName, string searchString)
         {
-            var r = _products.Where(
+            var testDataList = GetTestDataList().Where(
                 p => p.ProductCategory.Name == categoryName &&
-                p.Name.ToLower().Contains(searchString.ToLower()));
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+                p.Name.ToLower().Contains(searchString.ToLower())); ;
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
             var products = _products
                 .Where(p => p.ProductCategory.Name == categoryName &&
                        p.Name.ToLower().Contains(searchString.ToLower()));
@@ -250,10 +261,11 @@ namespace CYShopTests
         [TestCase("SSD", "3t")]
         public void Get_NotFoundResult_WhenNoMatchingCondition(string categoryName, string searchString)
         {
-            var r = _products.Where(
+            var testDataList = GetTestDataList().Where(
                 p => p.ProductCategory.Name == categoryName &&
                 p.Name.ToLower().Contains(searchString.ToLower()));
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
 
             var result = _controller.Get(categoryName, searchString, null, null).Result.Result;
 
@@ -265,10 +277,11 @@ namespace CYShopTests
         {
             string categoryName = "Wrong";
             string searchString = "Wrong";
-            var r = _products.Where(
+            var testDataList = GetTestDataList().Where(
                 p => p.ProductCategory.Name == categoryName &&
                 p.Name.ToLower().Contains(searchString.ToLower()));
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(r);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<Product, bool>>>())).Returns(dataMock);
 
             var result = _controller.Get(categoryName, searchString, null, null).Result.Result;
 
@@ -276,6 +289,13 @@ namespace CYShopTests
         }
 
         private void SetDefaultValue()
+        {
+            string t = "Need To Update";
+            List<Product> temp = GetTestDataList();
+            _products = temp.AsQueryable();
+        }
+
+        private List<Product> GetTestDataList()
         {
             string t = "Need To Update";
             List<Product> temp = new List<Product>()
@@ -329,7 +349,7 @@ namespace CYShopTests
                     Price = 2488, ProductBrandID = 6, ProductCategoryID = 3, ProductCategory = new ProductCategory { ID = 3, Name = "SSD" }
                 },
             };
-            _products = temp.AsQueryable();
+            return temp;
         }
     }
 }
