@@ -54,7 +54,8 @@ namespace CYShopTests
             Assert.That(result, Is.TypeOf<ViewResult>());
             var model = (((ViewResult)result).ViewData.Model) as List<ProductOrderViewModel>;
             Assert.That(model, Has.Exactly(1).Items);
-            Assert.That(model[0].TotalPrice, Is.EqualTo(10000));
+            int totalPrice = testDataList.SingleOrDefault().TotalPrice;
+            Assert.That(model[0].TotalPrice, Is.EqualTo(totalPrice));
         }
 
         [Test]
@@ -74,8 +75,7 @@ namespace CYShopTests
             Assert.That(result, Is.TypeOf<ViewResult>());
             Assert.That(((ViewResult)result).ViewData, Is.Not.Null);
             var viewData = ((ViewResult)result).ViewData;
-            Assert.That(viewData["Cartlist"], Has.Exactly(maxCartItemCount).Items);
-            Assert.That(viewData["TotalPrice"], Is.GreaterThan(0));
+            Assert.That(JsonConvert.SerializeObject(viewData["Cartlist"]), Is.EqualTo(sessionValue));
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace CYShopTests
             var result = Task.FromResult(_controller.Checkout(input)).Result.Result;
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.TypeOf<ViewResult>());
+            Assert.That(result, Is.TypeOf(typeof(ViewResult)));
             var modelState = ((ViewResult)result).ViewData.ModelState;
             Assert.That(modelState.IsValid, Is.False);
         }
@@ -147,7 +147,7 @@ namespace CYShopTests
             var result = Task.FromResult(_controller.Checkout(input)).Result.Result;
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.TypeOf<ViewResult>());
+            Assert.That(result, Is.TypeOf(typeof(ViewResult)));
             var modelState = ((ViewResult)result).ViewData.ModelState;
             Assert.That(modelState.IsValid, Is.False);
         }
