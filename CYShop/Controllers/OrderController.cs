@@ -96,14 +96,14 @@ namespace CYShop.Controllers
             return View();
         }
 
-        public IActionResult Index(int? pageNumber)
+        public async Task<IActionResult> Index(int? pageNumber)
         {
             Expression<Func<ProductOrder, bool>> expression = p => p.UserID == _userManager.GetUserId(User);
             var orderList = _repository.Find(expression)
                 .OrderByDescending(p => p.OrderDate)
                 .Select(p => new ProductOrderViewModel(p));
 
-            return View(PaginatedList<ProductOrderViewModel>.CreateAsync(orderList, pageNumber ?? 1, 2));
+            return View(await PaginatedList<ProductOrderViewModel>.CreateAsync(orderList, pageNumber ?? 1, 2));
         }
     }
 }

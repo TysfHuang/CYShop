@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis;
 using System.Security.Claims;
 using Newtonsoft.Json;
+using MockQueryable.Moq;
 
 namespace CYShopTests
 {
@@ -43,11 +44,12 @@ namespace CYShopTests
         public void Index_GetOrders()
         {
             CYShopUser user = GetUser("2");
-            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<ProductOrder, bool>>>()))
-                .Returns(_productOrders.Where(p => p.UserID == user.Id));
+            var testDataList = _productOrders.Where(p => p.UserID == user.Id);
+            var dataMock = testDataList.BuildMock();
+            _repository.Setup(p => p.Find(It.IsAny<Expression<Func<ProductOrder, bool>>>())).Returns(dataMock);
             _userManager.Setup(s => s.GetUserId(It.IsAny<ClaimsPrincipal>())).Returns(user.Id);
 
-            var result = _controller.Index(1);
+            var result = _controller.Index(1).Result;
 
             Assert.That(result, Is.TypeOf<ViewResult>());
             var model = (((ViewResult)result).ViewData.Model) as List<ProductOrderViewModel>;
