@@ -10,6 +10,8 @@ using CYShop.Data;
 using CYShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Http;
 
 namespace CYShop.Controllers
 {
@@ -18,11 +20,15 @@ namespace CYShop.Controllers
     {
         private readonly CYShopContext _context;
         private readonly IConfiguration _configuration;
+        private readonly long _fileSizeLimit;
+        private readonly string _storedFilesPath;
 
         public ProductController(CYShopContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
+            _fileSizeLimit = _configuration.GetValue<long>("FileSizeLimit");
+            _storedFilesPath = _configuration.GetValue<string>("StoredFilesPath");
         }
 
         // GET: Product
@@ -81,7 +87,7 @@ namespace CYShop.Controllers
             }
 
             int pageSize = _configuration.GetValue("PageSize", 6);
-            return View(PaginatedList<Product>.CreateAsync(
+            return View(await PaginatedList<Product>.CreateAsync(
                 cyShopContext.AsNoTracking(),
                 pageNumber ?? 1,
                 pageSize));
@@ -118,20 +124,42 @@ namespace CYShop.Controllers
 
         [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateNewProduct(Product product)
+        public async Task<IActionResult> CreateNewProduct(Product product, IFormFile? formFile)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    string imagePath = string.Empty;
+                    if (formFile != null && formFile.Length > 0)
+                    {
+                        Dictionary<string, string> uploadFileStatus = await CreateUploadFileAsync(formFile);
+                        if (uploadFileStatus.ContainsKey("ErrMsg"))
+                        {
+                            ModelState.AddModelError("", uploadFileStatus["ErrMsg"]);
+                            ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+                            ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductBrandID);
+                            return View(product);
+                        }
+                        else if (uploadFileStatus.ContainsKey("IsSuccess"))
+                        {
+                            imagePath = uploadFileStatus["ImagePath"];
+                        }
+                    }
+
                     var newProduct = new Product();
-                    
+
                     if (await TryUpdateModelAsync<Product>(
                         newProduct,
                         "",
                         p => p.Name, p => p.Description, p => p.CoverImagePath, p => p.Price,
                         p => p.ProductCategoryID, p => p.ProductBrandID))
                     {
+
+                        if (imagePath != string.Empty)
+                        {
+                            newProduct.CoverImagePath = imagePath;
+                        }
                         _context.Add(newProduct);
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
@@ -166,9 +194,70 @@ namespace CYShop.Controllers
             return View(product);
         }
 
+        private string CheckUploadFile(IFormFile formFile)
+        {
+            if (formFile.Length > _fileSizeLimit)
+            {
+                return "檔案大小請小於 2MB!";
+            }
+
+            string[] permittedExtensions = { ".jpg", };
+            var ext = Path.GetExtension(formFile.FileName).ToLowerInvariant();
+            if (string.IsNullOrEmpty(ext) || !permittedExtensions.Contains(ext))
+            {
+                return "請上傳副檔名為 .jpg 的封面檔!";
+            }
+            return string.Empty;
+        }
+
+        private async Task<Dictionary<string, string>> CreateUploadFileAsync(IFormFile formFile)
+        {
+            Dictionary<string, string> status = new Dictionary<string, string>();
+            try
+            {
+                string errMsgIfInvalid = CheckUploadFile(formFile);
+                if (errMsgIfInvalid != string.Empty)
+                {
+                    status.Add("ErrMsg", errMsgIfInvalid);
+                    return status;
+                }
+                var filePath = Path.Combine(_storedFilesPath, Path.GetRandomFileName());
+                filePath = Path.ChangeExtension(filePath, "jpg");
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await formFile.CopyToAsync(stream);
+                    status.Add("ImagePath", "/img/" + Path.GetFileName(filePath));
+                }
+                status.Add("IsSuccess", "");
+            }
+            catch (Exception ex)
+            {
+                status.Add("ErrMsg", "儲存圖檔時發生錯誤: " + ex.Message);
+            }
+            return status;
+        }
+
+        private void DeleteCoverImageFile(string coverImagePath)
+        {
+            try
+            {
+                string filePath = Path.GetFileName(coverImagePath);
+                filePath = Path.Combine(_storedFilesPath, filePath);
+                bool isJpgFile = Path.GetExtension(filePath) == ".jpg";
+                if (System.IO.File.Exists(filePath) && isJpgFile)
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(uint id, Product product)
+        public async Task<IActionResult> Edit(uint id, Product product, IFormFile? formFile)
         {
             if (id != product.ID)
             {
@@ -177,6 +266,23 @@ namespace CYShop.Controllers
 
             if (ModelState.IsValid)
             {
+                string imagePath = string.Empty;
+                if (formFile != null && formFile.Length > 0)
+                {
+                    Dictionary<string, string> uploadFileStatus = await CreateUploadFileAsync(formFile);
+                    if (uploadFileStatus.ContainsKey("ErrMsg"))
+                    {
+                        ModelState.AddModelError("", uploadFileStatus["ErrMsg"]);
+                        ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+                        ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
+                        return View(product);
+                    }
+                    else if (uploadFileStatus.ContainsKey("IsSuccess"))
+                    {
+                        imagePath = uploadFileStatus["ImagePath"];
+                    }
+                }
+
                 var newProduct = new Product();
 
                 if (await TryUpdateModelAsync<Product>(
@@ -187,6 +293,11 @@ namespace CYShop.Controllers
                 {
                     try
                     {
+                        if (imagePath != string.Empty)
+                        {
+                            DeleteCoverImageFile(newProduct.CoverImagePath);
+                            newProduct.CoverImagePath = imagePath;
+                        }
                         _context.Update(newProduct);
                         await _context.SaveChangesAsync();
                     }
@@ -242,6 +353,7 @@ namespace CYShop.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
+                DeleteCoverImageFile(product.CoverImagePath);
                 _context.Products.Remove(product);
             }
 

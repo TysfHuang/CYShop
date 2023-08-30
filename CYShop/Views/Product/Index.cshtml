@@ -76,7 +76,10 @@
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.ID">Delete</a> |
-                        <img class="rounded float-end" src="/example.jpg" height="100">
+                        @{
+                            string imgPath = item.CoverImagePath == "need to update" ? "/img/example.jpg" : item.CoverImagePath;
+                            <img class="rounded float-end" src="@imgPath" height="100">
+                        }
                     </p>
                 </td>
             </tr>
