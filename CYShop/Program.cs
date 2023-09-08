@@ -4,12 +4,15 @@ using CYShop.Data;
 using Microsoft.AspNetCore.Identity;
 using CYShop.Models;
 using CYShop.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CYShopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CYShopContext") ?? throw new InvalidOperationException("Connection string 'CYShopContext' not found.")));
 
 builder.Services.AddDefaultIdentity<CYShopUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<CYShopContext>();
 
 builder.Services.AddScoped<ICYShopRepository<Product, uint>, ProductRepository>();
@@ -19,6 +22,14 @@ builder.Services.AddScoped<ICYShopRepository<ProductOrder, uint>, ProductOrderRe
 builder.Services.AddControllersWithViews();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddRazorPages();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -78,15 +89,6 @@ else
     app.UseSwaggerUI();
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-
-    var context = services.GetRequiredService<CYShopContext>();
-    context.Database.EnsureCreated();
-    DbInitializer.Initialize(context);
-}
-
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -94,14 +96,25 @@ app.UseStaticFiles();
 app.UseSession();
 
 app.UseRouting();
-app.UseAuthentication();;
-
-app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<CYShopContext>();
+    context.Database.EnsureCreated();
+    //context.Database.Migrate();
+    var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
+    await DbInitializer.Initialize(services, testUserPw);
+}
 
 app.Run();

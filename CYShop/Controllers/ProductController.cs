@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace CYShop.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator")]
     public class ProductController : Controller
     {
         private readonly CYShopContext _context;

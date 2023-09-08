@@ -15,6 +15,7 @@ using CYShop.Models;
 
 namespace CYShop.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class ConfirmEmailModel : PageModel
     {
         private readonly UserManager<CYShopUser> _userManager;

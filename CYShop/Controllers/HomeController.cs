@@ -1,11 +1,13 @@
 ﻿using CYShop.Data;
 using CYShop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace CYShop.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

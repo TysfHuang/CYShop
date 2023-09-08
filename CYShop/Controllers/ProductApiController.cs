@@ -1,6 +1,7 @@
 ﻿using CYShop.Data;
 using CYShop.Models;
 using CYShop.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using System.Text.Json;
 
 namespace CYShop.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductApiController : ControllerBase

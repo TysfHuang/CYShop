@@ -19,9 +19,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using CYShop.Models;
+using Microsoft.Extensions.DependencyInjection;
+using System.Data;
+using System.Security.Cryptography;
 
 namespace CYShop.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<CYShopUser> _signInManager;
@@ -30,13 +34,15 @@ namespace CYShop.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<CYShopUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<CYShopUser> userManager,
             IUserStore<CYShopUser> userStore,
             SignInManager<CYShopUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -44,6 +50,7 @@ namespace CYShop.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -122,7 +129,7 @@ namespace CYShop.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-
+                    await SetDefaultRoleToUser(user);
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -176,6 +183,22 @@ namespace CYShop.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<CYShopUser>)_userStore;
+        }
+
+        private async Task SetDefaultRoleToUser(CYShopUser user)
+        {
+            string userRole = "User";
+            if (!await _roleManager.RoleExistsAsync(userRole))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(userRole));
+            }
+
+            if (user == null)
+            {
+                throw new Exception("The testUserPw password was probably not strong enough!");
+            }
+
+            await _userManager.AddToRoleAsync(user, userRole);
         }
     }
 }

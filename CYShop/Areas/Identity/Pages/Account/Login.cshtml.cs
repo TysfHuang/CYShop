@@ -18,6 +18,7 @@ using CYShop.Models;
 
 namespace CYShop.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class LoginModel : PageModel
     {
         private readonly SignInManager<CYShopUser> _signInManager;
