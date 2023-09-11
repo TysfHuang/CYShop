@@ -15,11 +15,16 @@ namespace CYShop.Controllers
     public class OrderController : Controller
     {
         private readonly ICYShopRepository<ProductOrder, uint> _repository;
+        ICYShopRepository<ProductSalesCount, uint> _repository_sales;
         private readonly UserManager<CYShopUser> _userManager;
 
-        public OrderController(ICYShopRepository<ProductOrder, uint> repository, UserManager<CYShopUser> userManager)
+        public OrderController(
+            ICYShopRepository<ProductOrder, uint> repository,
+            ICYShopRepository<ProductSalesCount, uint> repository_sales,
+            UserManager<CYShopUser> userManager)
         {
             _repository = repository;
+            _repository_sales = repository_sales;
             _userManager = userManager;
         }
 
@@ -57,6 +62,7 @@ namespace CYShop.Controllers
                     };
                     order.SetOrderItems(cart);
                     uint id = await _repository.CreateAsync(order);
+                    await RecordToSalesCount(cart);
                     SessionHelper.Remove(HttpContext.Session, "cart");
                     return RedirectToAction("Result");
                 }
@@ -73,6 +79,40 @@ namespace CYShop.Controllers
             ViewData["Cartlist"] = cart;
             ViewData["TotalPrice"] = GetTotalPriceFromCart(cart);
             return View(orderViewModel);
+        }
+
+        private async Task RecordToSalesCount(List<CartItem> cart)
+        {
+            foreach(var item in cart)
+            {
+                var oldSales = await _repository_sales.FindByIdAsync(item.ProductID);
+                if (oldSales != null)
+                {
+                    if(oldSales.OrderDate.Date == DateTime.Now.Date)
+                    {
+                        oldSales.Count += item.Quantity;
+                        await _repository_sales.UpdateAsync(oldSales);
+                    }
+                    else
+                    {
+                        await _repository_sales.CreateAsync(ConvertToPSC(item));
+                    }
+                }
+                else
+                {
+                    await _repository_sales.CreateAsync(ConvertToPSC(item));
+                }
+            }
+        }
+
+        private ProductSalesCount ConvertToPSC(CartItem cart)
+        {
+            return new ProductSalesCount
+            {
+                ProductID = cart.ProductID,
+                Count = cart.Quantity,
+                OrderDate = DateTime.Now.Date
+            };
         }
 
         private int GetTotalPriceFromCart(List<CartItem> cart)

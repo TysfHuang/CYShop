@@ -22,6 +22,7 @@ namespace CYShopTests
     public class OrderTest
     {
         private Mock<ICYShopRepository<ProductOrder, uint>> _repository;
+        private Mock<ICYShopRepository<ProductSalesCount, uint>> _repositorySalesCount;
         private Mock<UserManager<CYShopUser>> _userManager;
         private OrderController _controller;
         private IQueryable<ProductOrder> _productOrders;
@@ -32,9 +33,10 @@ namespace CYShopTests
         public void Setup()
         {
             _repository = new Mock<ICYShopRepository<ProductOrder, uint>>();
+            _repositorySalesCount = new Mock<ICYShopRepository<ProductSalesCount, uint>>();
             var UserStoreMock = Mock.Of<IUserStore<CYShopUser>>();
             _userManager = new Mock<UserManager<CYShopUser>>(UserStoreMock, null, null, null, null, null, null, null, null);
-            _controller = new OrderController(_repository.Object, _userManager.Object);
+            _controller = new OrderController(_repository.Object, _repositorySalesCount.Object, _userManager.Object);
             _context = new Mock<HttpContext>();
             _session = new Mock<ISession>();
             SetValue();

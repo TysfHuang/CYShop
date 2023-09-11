@@ -17,6 +17,7 @@ builder.Services.AddDefaultIdentity<CYShopUser>(options => options.SignIn.Requir
 
 builder.Services.AddScoped<ICYShopRepository<Product, uint>, ProductRepository>();
 builder.Services.AddScoped<ICYShopRepository<ProductOrder, uint>, ProductOrderRepository>();
+builder.Services.AddScoped<ICYShopRepository<ProductSalesCount, uint>, ProductSalesCountRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

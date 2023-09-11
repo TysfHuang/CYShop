@@ -4,6 +4,7 @@ using CYShop.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CYShop.Migrations
 {
     [DbContext(typeof(CYShopContext))]
-    partial class CYShopContextModelSnapshot : ModelSnapshot
+    [Migration("20230911130051_FixRelationShipsOfClass")]
+    partial class FixRelationShipsOfClass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -4,6 +4,7 @@ using CYShop.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CYShop.Migrations
 {
     [DbContext(typeof(CYShopContext))]
-    partial class CYShopContextModelSnapshot : ModelSnapshot
+    [Migration("20230911124408_AddSalesCountRepo")]
+    partial class AddSalesCountRepo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,7 +217,7 @@ namespace CYShop.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("ProductID")
+                    b.Property<long?>("ProductID")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -396,9 +398,7 @@ namespace CYShop.Migrations
                 {
                     b.HasOne("CYShop.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductID");
 
                     b.Navigation("Product");
                 });

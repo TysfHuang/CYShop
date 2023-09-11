@@ -20,6 +20,7 @@ namespace CYShop.Data
         public DbSet<ProductCategory> ProductCategorys { get; set; }
         public DbSet<ProductBrand> ProductBrands { get; set; }
         public DbSet<ProductOrder> ProductOrders { get; set; }
+        public DbSet<ProductSalesCount> ProductSalesCounts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +29,7 @@ namespace CYShop.Data
             modelBuilder.Entity<ProductCategory>().ToTable("ProductCategory");
             modelBuilder.Entity<ProductBrand>().ToTable("ProductBrand");
             modelBuilder.Entity<ProductOrder>().ToTable("ProductOrder");
+            modelBuilder.Entity<ProductSalesCount>().ToTable("ProductSalesCount");
         }
     }
 }
