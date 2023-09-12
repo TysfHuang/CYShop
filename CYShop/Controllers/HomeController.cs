@@ -2,6 +2,7 @@
 using CYShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -19,9 +20,9 @@ namespace CYShop.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var categories = _context.ProductCategorys.Select(x => x).ToList();
+            var categories = await _context.ProductCategorys.Select(x => x).ToListAsync();
             return View(categories);
         }
 

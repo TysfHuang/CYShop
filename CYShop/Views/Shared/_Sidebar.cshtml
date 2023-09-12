@@ -1,11 +1,8 @@
 ﻿@model List<ProductCategory>
 
 <div class="d-flex flex-column flex-shrink-0 col-sm-2 text-bg-dark">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <svg class="bi pe-none me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-        <span class="fs-4 pt-2">產品類型</span>
-    </a>
-    <hr>
+    <span class="fs-4 pt-2 text-center">產品類型</span>
+    <br />
     <ul class="nav nav-pills flex-column" id="sidebarProductCategory">
         <li class="nav-item">
             <a href="#" class="nav-link active">
@@ -22,5 +19,19 @@
         }
     </ul>
     <hr>
-    
+    <span class="fs-4 pt-2 text-center">過去7天暢銷排行榜</span>
+    <div id="sidebarHotSalesList">
+        <div class="card mb-3 text-dark bg-light" style="max-width: 540px;">
+            <div class="row g-0 m-2">
+                <h5 class="card-title">Card title</h5>
+                <div class="col-md-8">
+                    <p class="m-0" style="color:red">價格:</p>
+                    <p class="card-text m-0"><small>銷售數:</small></p>
+                </div>
+                <div class="col-md-4">
+                    <img src="~/img/example.jpg" class="img-fluid rounded-start">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

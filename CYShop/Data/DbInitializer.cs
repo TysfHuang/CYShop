@@ -23,7 +23,7 @@ namespace CYShop.Data
                                             string testUserPw, string UserName)
         {
             var userManager = serviceProvider.GetService<UserManager<CYShopUser>>();
-            
+
             var user = await userManager.FindByNameAsync(UserName);
             if (user == null)
             {
@@ -88,7 +88,6 @@ namespace CYShop.Data
                 new ProductCategory{Name="MB"},
                 new ProductCategory{Name="PSU"}
                 };
-
             context.ProductCategorys.AddRange(productCategorys);
             context.SaveChanges();
 
@@ -107,7 +106,6 @@ namespace CYShop.Data
                 new ProductBrand{Name="EVGA"},
                 new ProductBrand{Name="SeaSonic"}
             };
-
             context.ProductBrands.AddRange(productBrands);
             context.SaveChanges();
 
@@ -150,8 +148,30 @@ namespace CYShop.Data
                 new Product{Name="SeaSonic PRIME TX-850",Description=des,CoverImagePath=defaultCoverImagePath,Price=8150,ProductBrandID=12,ProductCategoryID=6},
                 new Product{Name="SeaSonic PRIME TX-750",Description=des,CoverImagePath=defaultCoverImagePath,Price=7090,ProductBrandID=12,ProductCategoryID=6}
             };
-
             context.Products.AddRange(products);
+            context.SaveChanges();
+
+            List<ProductSalesCount> salesList = new List<ProductSalesCount>();
+            Random rnd = new Random();
+            int days = 32;
+            for (int i = 0; i < products.Length; i++)
+            {
+                byte[] buffer = new byte[days];
+                rnd.NextBytes(buffer);
+                for (int j = 0; j < buffer.Length; j++) //過去32天每日銷售數量
+                {
+                    if (Convert.ToInt32(buffer[j]) % 2 == 0)    //並不是每天都有銷售紀錄，因此用隨機數判斷
+                    {
+                        salesList.Add(new ProductSalesCount
+                        {
+                            OrderDate = (DateTime.Now - TimeSpan.FromDays(j)).Date,
+                            Count = Convert.ToUInt32(rnd.Next(1, 20)),
+                            ProductID = Convert.ToUInt32(i + 1)
+                        });
+                    }
+                }
+            }
+            context.ProductSalesCounts.AddRange(salesList);
             context.SaveChanges();
         }
     }

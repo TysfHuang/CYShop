@@ -1,4 +1,5 @@
 ﻿const productUri = "api/ProductApi";
+const productSalesCountUri = "api/ProductSalesCountApi";
 const cartList = [];
 let shouldUpdatePaginedList = false;
 let currentCategory = "ALL";
@@ -264,8 +265,29 @@ function SortOrderPriceEvent() {
     ActivePaginedListFirstButton();
 }
 
+
+
+function SetHotSalesList() {
+    let promises = GetFromApiController(productSalesCountUri);
+    promises.then((data) => {
+        if (data == null) {
+            return;
+        }
+        for (let i = 0; i < data.length; i++) {
+            let listitem = $("#sidebarHotSalesList div").first().clone();
+            listitem.find("h5").text(data[i].name);
+            listitem.find("div p").first().text("價格:" + data[i].price.toString());
+            listitem.find("div p small").text("銷售數:" + data[i].salesCount.toString());
+            listitem.find("div img").attr("src", data[i].coverImagePath);
+            $("#sidebarHotSalesList").append(listitem);
+        }
+        $("#sidebarHotSalesList div").first().remove();
+    });
+}
+
 $().ready(function () {
     InitialPage();
+    SetHotSalesList();
     GetCurrentCart();
     $("#searchBtn").click(SearchProductEvent);
     $("#sidebarProductCategory").children().click(ProductCategoryEvent)
