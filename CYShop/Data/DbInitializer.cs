@@ -110,7 +110,7 @@ namespace CYShop.Data
             context.SaveChanges();
 
             string des = "need to update";
-            string defaultCoverImagePath = "img\\example.jpg";
+            string defaultCoverImagePath = "/img/example.jpg";
             var products = new Product[]
             {
                 new Product{Name="Intel Core i9-13900K",Description=des,CoverImagePath=defaultCoverImagePath,Price=21999,ProductBrandID=1,ProductCategoryID=1},

@@ -117,14 +117,14 @@ function GetProductTemplete(id, title, price, imageUrl) {
             let productPrice = parseInt($(this).siblings("p.fw-bold").text().replace("$", ""));
             AddToCart(GetCartItemObjectFormat(productId, productName, productPrice, 1));
         });
+    let cardFooter = $("<div></div>").addClass("card-footer").append(priceDiv).append(addToCartBtn);
     let imageDiv = $("<img>").attr("src", imageUrl).addClass("rounded float-start");
     let outerDiv = $("<div></div>").addClass("col").attr("max-width", "200px")
-        .append($("<div></div>").addClass("card shadow-sm")
+        .append($("<div></div>").addClass("card shadow-sm h-100")
             .append($("<div></div>").addClass("card-body")
                 .append(idDiv)
-                .append(titleDiv)
-                .append(priceDiv)
-                .append(addToCartBtn))
+                .append(titleDiv))
+            .append(cardFooter)
             .prepend(imageDiv));
     return outerDiv;
 }
@@ -264,8 +264,6 @@ function SortOrderPriceEvent() {
     SetProductListAndCloseLoadingSpinner(promises);
     ActivePaginedListFirstButton();
 }
-
-
 
 function SetHotSalesList() {
     let promises = GetFromApiController(productSalesCountUri);

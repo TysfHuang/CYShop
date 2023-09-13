@@ -19,7 +19,7 @@
     </div>
 </form>
 
-<table class="table">
+<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>
@@ -73,9 +73,9 @@
                 </td>
                 <td>
                     <p>
-                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a> |
+                        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a> 
+                        <a class="btn btn-success" asp-action="Details" asp-route-id="@item.ID">Details</a> 
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.ID">Delete</a> 
                         @{
                             string imgPath = item.CoverImagePath == "need to update" ? "/img/example.jpg" : item.CoverImagePath;
                             <img class="rounded float-end" src="@imgPath" height="100">
