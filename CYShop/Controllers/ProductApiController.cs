@@ -21,7 +21,7 @@ namespace CYShop.Controllers
     public class ProductApiController : ControllerBase
     {
         private readonly ICYShopRepository<Product, uint> _repository;
-        private const int PageSize = 10;
+        private const int PageSize = 12;
 
         public ProductApiController(ICYShopRepository<Product, uint> repository)
         {

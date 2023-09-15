@@ -104,10 +104,8 @@ function UpdateCartSummary() {
     CheckAndShowCheckoutButton();
 }
 
-function GetProductTemplete(id, title, price, imageUrl) {
+function GetProductCard(id, title, price, imageUrl) {
     let idDiv = $("<p></p>").addClass("visually-hidden").text(id.toString());
-    let titleDiv = $("<p></p>").addClass("card-text fs-3").text(title);
-    let priceDiv = $("<p></p>").addClass("fw-bold").attr("style", "color:green").text("$" + price.toString());
     let addToCartBtn = $("<button></button>")
         .addClass("btn btn-danger")
         .text("加入購物車")
@@ -117,16 +115,33 @@ function GetProductTemplete(id, title, price, imageUrl) {
             let productPrice = parseInt($(this).siblings("p.fw-bold").text().replace("$", ""));
             AddToCart(GetCartItemObjectFormat(productId, productName, productPrice, 1));
         });
-    let cardFooter = $("<div></div>").addClass("card-footer").append(priceDiv).append(addToCartBtn);
-    let imageDiv = $("<img>").attr("src", imageUrl).addClass("rounded float-start");
-    let outerDiv = $("<div></div>").addClass("col").attr("max-width", "200px")
-        .append($("<div></div>").addClass("card shadow-sm h-100")
-            .append($("<div></div>").addClass("card-body")
-                .append(idDiv)
-                .append(titleDiv))
-            .append(cardFooter)
-            .prepend(imageDiv));
-    return outerDiv;
+    let btnDiv = $("<div></div>").addClass("align-self-end").append(addToCartBtn);
+    let template = GetProductTemplate();
+    template.find("img").attr("src", imageUrl);
+    template.find(".card-title").text(title);
+    template.find(".card-text").text(price).css("color", "green");
+    template.find(".card-body").append(idDiv);
+    template.find(".card-body").append(btnDiv);
+    return template;
+}
+
+function GetProductTemplate() {
+    let template = $('<div class="card mb-3 mx-1 h-100 col flex-grow-0">\
+                        <div class= "row g-0" >\
+                            <div class="col-4 col-md-12 align-self-center">\
+                              <img src="..." class="img-fluid rounded-start" alt="...">\
+                            </div>\
+                            <div class="col-8 col-md-12">\
+                              <div class="card-body">\
+                                <h5 class="card-title">Card title</h5>\
+                                <p class="card-text">card text 1</p>\
+                              </div>\
+                            </div>\
+                        </div>\
+                    </div> ');
+    template.css("max-width", "500px");
+    template.css("min-width", "200px");
+    return template;
 }
 
 function SetPaginedList(totalPage) {
@@ -176,7 +191,7 @@ function SetPageProductList(newProductList) {
             ? '/example.jpg'
             : newProductList[i]["coverImagePath"];
         productList.append(
-            GetProductTemplete(
+            GetProductCard(
                 newProductList[i]["id"],
                 newProductList[i]["name"],
                 newProductList[i]["price"],

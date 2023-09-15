@@ -6,7 +6,7 @@
 
 <div class="row">
     @await Html.PartialAsync("_Sidebar", Model)
-    <div class="col-sm-10 pt-2">
+    <div class="col-md-10 pt-2">
         <div class="input-group">
             <input type="text" name="searchString" id="searchString" class="form-control" placeholder="Search">
             <div class="input-group-append">
@@ -21,13 +21,12 @@
         <div id="loadingSpinner" class="spinner-border m-5" role="status">
             <span class="sr-only"></span>
         </div>
-        <div class="album py-2 bg-light">
-            <div class="container">
-                <div id="productList" class="row row-cols-5 g-3 card-group">
-                </div>
+        <div class="container">
+            <div id="productList" class="d-flex row g-2">
+
             </div>
         </div>
-        <div id="paginedList">
+        <div class="container" id="paginedList">
 
         </div>
     </div>
