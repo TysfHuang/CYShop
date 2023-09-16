@@ -110,9 +110,9 @@ function GetProductCard(id, title, price, imageUrl) {
         .addClass("btn btn-danger")
         .text("加入購物車")
         .click(function () {
-            let productId = $(this).siblings("p.visually-hidden").text();
-            let productName = $(this).siblings("p.card-text").text();
-            let productPrice = parseInt($(this).siblings("p.fw-bold").text().replace("$", ""));
+            let productId = $(this).parent().siblings("p.visually-hidden").text();
+            let productName = $(this).parent().siblings("h5.card-title").text()
+            let productPrice = parseInt($(this).parent().siblings("p.card-text").text().replace("$", ""));
             AddToCart(GetCartItemObjectFormat(productId, productName, productPrice, 1));
         });
     let btnDiv = $("<div></div>").addClass("align-self-end").append(addToCartBtn);
@@ -144,10 +144,14 @@ function GetProductTemplate() {
     return template;
 }
 
+function GetPaginedButtonTemplate() {
+    return $('<li class="page-item"><a class="page-link" href="#">1</a></li>');
+}
+
 function SetPaginedList(totalPage) {
     $("#paginedList").empty();
     for (let i = 1; i <= totalPage; i++) {
-        let button = $("<button></button>").text(i.toString()).click(function () {
+        let button1 = $("<button></button>").text(i.toString()).click(function () {
             $(this).siblings().attr("class", "btn btn-primary");
             $(this).attr("class", "btn btn-outline-primary disabled");
             let promises = GetProductsByCondiction(i, $("#searchString").val());
@@ -155,11 +159,11 @@ function SetPaginedList(totalPage) {
         });
 
         if (i == 1) {
-            button.attr("class", "btn btn-outline-primary disabled");
+            button1.attr("class", "btn btn-outline-primary disabled");
         } else {
-            button.attr("class", "btn btn-primary");
+            button1.attr("class", "btn btn-primary");
         }
-        $("#paginedList").append(button);
+        $("#paginedList").append(button1);
     }
 }
 

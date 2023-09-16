@@ -4,6 +4,7 @@
     ViewData["Title"] = "產品清單";
 }
 
+
 <div class="row">
     @await Html.PartialAsync("_Sidebar", Model)
     <div class="col-md-10 pt-2">
@@ -21,20 +22,9 @@
         <div id="loadingSpinner" class="spinner-border m-5" role="status">
             <span class="sr-only"></span>
         </div>
-        <div class="container">
-            <div id="productList" class="d-flex row g-2">
-
-            </div>
+        <div id="productList" class="d-flex row g-2">
         </div>
-        <div class="container" id="paginedList">
-
+        <div id="paginedList">
         </div>
     </div>
 </div>
-
-<!--
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
-        asp-fallback-src="~/lib/jquery-3.6.1/jquery-3.6.1.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
--->
-
