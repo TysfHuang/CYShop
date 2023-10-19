@@ -6,6 +6,7 @@ using CYShop.Models;
 using CYShop.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using CYShop.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CYShopContext>(options =>
@@ -18,11 +19,15 @@ builder.Services.AddDefaultIdentity<CYShopUser>(options => options.SignIn.Requir
 builder.Services.AddScoped<ICYShopRepository<Product, uint>, ProductRepository>();
 builder.Services.AddScoped<ICYShopRepository<ProductOrder, uint>, ProductOrderRepository>();
 builder.Services.AddScoped<ICYShopRepository<ProductSalesCount, uint>, ProductSalesCountRepository>();
+builder.Services.AddScoped<ICYShopRepository<ProductHotSalesList, uint>, ProductHotSalesListRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHostedService<HotSalesUpdateScheduler>();
+builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddAuthorization(options =>
@@ -94,18 +99,17 @@ app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.UseSession();
-
 app.UseRouting();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapRazorPages();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
+
+app.MapRazorPages();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {

@@ -195,7 +195,7 @@ namespace CYShop.Areas.Identity.Pages.Account
 
             if (user == null)
             {
-                throw new Exception("The testUserPw password was probably not strong enough!");
+                throw new Exception("The new created user error in Register!");
             }
 
             await _userManager.AddToRoleAsync(user, userRole);

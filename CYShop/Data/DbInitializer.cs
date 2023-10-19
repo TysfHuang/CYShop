@@ -64,7 +64,7 @@ namespace CYShop.Data
 
             if (user == null)
             {
-                throw new Exception("The testUserPw password was probably not strong enough!");
+                throw new Exception("Error in DbInitializer.cs -> EnsureRole. Should create user first!");
             }
 
             IR = await userManager.AddToRoleAsync(user, role);

@@ -21,6 +21,7 @@ namespace CYShop.Data
         public DbSet<ProductBrand> ProductBrands { get; set; }
         public DbSet<ProductOrder> ProductOrders { get; set; }
         public DbSet<ProductSalesCount> ProductSalesCounts { get; set; }
+        public DbSet<ProductHotSalesList> ProductHotSalesLists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +31,7 @@ namespace CYShop.Data
             modelBuilder.Entity<ProductBrand>().ToTable("ProductBrand");
             modelBuilder.Entity<ProductOrder>().ToTable("ProductOrder");
             modelBuilder.Entity<ProductSalesCount>().ToTable("ProductSalesCount");
+            modelBuilder.Entity<ProductHotSalesList>().ToTable("ProductHotSalesList");
         }
     }
 }

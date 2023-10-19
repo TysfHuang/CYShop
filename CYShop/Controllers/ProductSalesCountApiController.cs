@@ -14,12 +14,15 @@ namespace CYShop.Controllers
     [ApiController]
     public class ProductSalesCountApiController : ControllerBase
     {
-        private readonly ICYShopRepository<ProductSalesCount, uint> _repository;
+        private readonly ICYShopRepository<Product, uint> _repository;
+        private readonly ICYShopRepository<ProductHotSalesList, uint> _repository_list;
         private const int ListSize = 5;
 
-        public ProductSalesCountApiController(ICYShopRepository<ProductSalesCount, uint> repository)
+        public ProductSalesCountApiController(ICYShopRepository<Product, uint> repository,
+            ICYShopRepository<ProductHotSalesList, uint> repository_list)
         {
             _repository = repository;
+            _repository_list = repository_list;
         }
 
         [HttpGet]
@@ -35,33 +38,37 @@ namespace CYShop.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Get(int? days = 7)
         {
-            if (days <= 0 || days > 30)
+            if (days != 7)
             {
                 return NotFound();
             }
-            DateTime specDate = (DateTime.Now - TimeSpan.FromDays(Convert.ToDouble(days))).Date;
-            Expression<Func<ProductSalesCount, bool>> query = p => p.OrderDate >= specDate;
-            var salesList = await _repository
+            ProductHotSalesListPeriodType period = ProductHotSalesListPeriodType.Week;
+            Expression<Func<ProductHotSalesList, bool>> query = p => p.Period == period;
+            List<ProductHotSalesList> hotSalesList = await _repository_list
                 .Find(query)
-                .Include(s => s.Product)
+                .OrderByDescending(p => p.RecordDate)
                 .AsNoTracking()
+                .Take(1)
                 .ToListAsync();
-            var productIdList = salesList.Select(s => s.ProductID).Distinct();
-            List<ProductSalesCountDTO> totalSalesCountsList = new List<ProductSalesCountDTO>();
-            foreach (var productId in productIdList)    //計算每個產品的總銷售數
+            if (hotSalesList == null)
             {
-                uint totalCount = Convert.ToUInt32(salesList.Where(s => s.ProductID == productId).Sum(s => s.Count));
-                Product product = salesList.Where(s => s.ProductID == productId).First().Product;
+                return NotFound();
+            }
+            List<ProductSalesCountDTO> totalSalesCountsList = new List<ProductSalesCountDTO>();
+            string[] data_arr = hotSalesList[0].Itemslist.Split('.');
+            for(int i=0;i< data_arr.Length-1 && i < ListSize; i++)
+            {
+                string[] productIdAndCount = data_arr[i].Split(',');
+                Product product = await _repository.FindByIdAsync(Convert.ToUInt32(productIdAndCount[0]));
                 totalSalesCountsList.Add(new ProductSalesCountDTO
                 {
                     Name = product.Name,
                     CoverImagePath = product.CoverImagePath,
                     Price = product.Price,
-                    SalesCount = totalCount
+                    SalesCount = Convert.ToUInt32(productIdAndCount[1])
                 });
             }
-            totalSalesCountsList.Sort((x, y) => x.SalesCount.CompareTo(y.SalesCount) * -1);
-            return Ok(totalSalesCountsList.Take(ListSize));
+            return Ok(totalSalesCountsList);
         }
     }
 }
