@@ -13,7 +13,7 @@ namespace CYShop.Helper
         Task DoWork(CancellationToken stoppingToken);
     }
 
-    public class ScopedProcessingService : IScopedProcessingService
+    public class HotSalesUpdateService : IScopedProcessingService
     {
         private readonly ILogger _logger;
         private readonly ICYShopRepository<ProductSalesCount, uint> _repository_sales;
@@ -25,7 +25,7 @@ namespace CYShop.Helper
             public uint SalesCount;
         }
 
-        public ScopedProcessingService(ILogger<ScopedProcessingService> logger,
+        public HotSalesUpdateService(ILogger<HotSalesUpdateService> logger,
             ICYShopRepository<ProductSalesCount, uint> repository_sales,
             ICYShopRepository<ProductHotSalesList, uint> repository_list)
         {
@@ -51,6 +51,7 @@ namespace CYShop.Helper
 
         private async Task WorkForUpdate()
         {
+            await UpdateHotSalesList(ProductHotSalesListPeriodType.Daily);
             await UpdateHotSalesList(ProductHotSalesListPeriodType.Week);
         }
 
@@ -59,6 +60,7 @@ namespace CYShop.Helper
             int days = 7;
             switch (period)
             {
+                case ProductHotSalesListPeriodType.Daily: days = 1; break;
                 case ProductHotSalesListPeriodType.Week: days = 7; break;
             }
             DateTime specDate = (DateTime.Now - TimeSpan.FromDays(Convert.ToDouble(days))).Date;
@@ -103,7 +105,8 @@ namespace CYShop.Helper
     {
         private readonly ILogger<HotSalesUpdateScheduler> _logger;
         private IServiceProvider _services { get; }
-        private int _executionCount = 0;
+        private int executionCount = 0;
+        private const int UpdateIntervalMinutes = 30;
 
         public HotSalesUpdateScheduler(
             IServiceProvider services,
@@ -117,7 +120,7 @@ namespace CYShop.Helper
         {
             _logger.LogInformation("Timed Hosted Service for update hot sales list is running.");
 
-            var timer = new PeriodicTimer(TimeSpan.FromMinutes(2));
+            var timer = new PeriodicTimer(TimeSpan.FromMinutes(UpdateIntervalMinutes));
             try
             {
                 do
@@ -126,10 +129,10 @@ namespace CYShop.Helper
                     {
                         var myService = scope.ServiceProvider.GetRequiredService<IScopedProcessingService>();
                         await myService.DoWork(stoppingToken);
-                        int count = Interlocked.Increment(ref _executionCount);
+                        int count = Interlocked.Increment(ref executionCount);
                         _logger.LogInformation("Timed Hosted Service for update hot sales list is working. Count: {Count}", count);
                     }
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                    //await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 } while (await timer.WaitForNextTickAsync(stoppingToken));
             }
             catch (OperationCanceledException)

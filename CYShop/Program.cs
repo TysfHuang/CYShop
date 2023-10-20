@@ -27,7 +27,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHostedService<HotSalesUpdateScheduler>();
-builder.Services.AddScoped<IScopedProcessingService, ScopedProcessingService>();
+builder.Services.AddScoped<IScopedProcessingService, HotSalesUpdateService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddAuthorization(options =>

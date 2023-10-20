@@ -38,25 +38,30 @@ namespace CYShop.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<string>> Get(int? days = 7)
         {
-            if (days != 7)
+            if (days != 1 && days != 7)
             {
                 return NotFound();
             }
-            ProductHotSalesListPeriodType period = ProductHotSalesListPeriodType.Week;
+            ProductHotSalesListPeriodType period;
+            switch (days)
+            {
+                case 1: period = ProductHotSalesListPeriodType.Daily; break;
+                case 7: period = ProductHotSalesListPeriodType.Week; break;
+                default: period = ProductHotSalesListPeriodType.Week; break;
+            }
             Expression<Func<ProductHotSalesList, bool>> query = p => p.Period == period;
-            List<ProductHotSalesList> hotSalesList = await _repository_list
+            ProductHotSalesList? hotSalesList = await _repository_list
                 .Find(query)
                 .OrderByDescending(p => p.RecordDate)
                 .AsNoTracking()
-                .Take(1)
-                .ToListAsync();
+                .FirstOrDefaultAsync();
             if (hotSalesList == null)
             {
                 return NotFound();
             }
             List<ProductSalesCountDTO> totalSalesCountsList = new List<ProductSalesCountDTO>();
-            string[] data_arr = hotSalesList[0].Itemslist.Split('.');
-            for(int i=0;i< data_arr.Length-1 && i < ListSize; i++)
+            string[] data_arr = hotSalesList.Itemslist.Split('.');
+            for (int i = 0; i < data_arr.Length - 1 && i < ListSize; i++)
             {
                 string[] productIdAndCount = data_arr[i].Split(',');
                 Product product = await _repository.FindByIdAsync(Convert.ToUInt32(productIdAndCount[0]));
