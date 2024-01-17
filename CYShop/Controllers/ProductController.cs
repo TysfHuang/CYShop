@@ -117,8 +117,8 @@ namespace CYShop.Controllers
         // GET: Product/Create
         public IActionResult Create()
         {
-            ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name");
-            ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name");
+            ViewBag.ProductBrandID = new SelectList(_context.Set<ProductBrand>(), "ID", "Name");
+            ViewBag.ProductCategoryID = new SelectList(_context.Set<ProductCategory>(), "ID", "Name");
             return View();
         }
 
@@ -137,8 +137,8 @@ namespace CYShop.Controllers
                         if (uploadFileStatus.ContainsKey("ErrMsg"))
                         {
                             ModelState.AddModelError("", uploadFileStatus["ErrMsg"]);
-                            ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
-                            ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductBrandID);
+                            ViewBag.ProductBrandID = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+                            ViewBag.ProductCategoryID = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductBrandID);
                             return View(product);
                         }
                         else if (uploadFileStatus.ContainsKey("IsSuccess"))
@@ -171,8 +171,8 @@ namespace CYShop.Controllers
                 ModelState.AddModelError("", "無法創建商品");
             }
 
-            ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
-            ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductBrandID);
+            ViewBag.ProductBrandID = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+            ViewBag.ProductCategoryID = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
             return View(product);
         }
 
@@ -189,8 +189,8 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
-            ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
-            ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
+            ViewBag.ProductBrandID = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+            ViewBag.ProductCategoryID = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
             return View(product);
         }
 
@@ -274,8 +274,8 @@ namespace CYShop.Controllers
                     if (uploadFileStatus.ContainsKey("ErrMsg"))
                     {
                         ModelState.AddModelError("", uploadFileStatus["ErrMsg"]);
-                        ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
-                        ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
+                        ViewBag.ProductBrandID = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+                        ViewBag.ProductCategoryID = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
                         return View(product);
                     }
                     else if (uploadFileStatus.ContainsKey("IsSuccess"))
@@ -317,9 +317,8 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
-
-            ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
-            ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
+            ViewBag.ProductBrandID = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
+            ViewBag.ProductCategoryID = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
             return View(product);
         }
 
