@@ -263,8 +263,9 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
+            Product? productToUpdate = await _context.Products.FindAsync(id);
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && productToUpdate != null)
             {
                 string imagePath = string.Empty;
                 if (formFile != null && formFile.Length > 0)
@@ -283,22 +284,19 @@ namespace CYShop.Controllers
                     }
                 }
 
-                var newProduct = new Product();
-
                 if (await TryUpdateModelAsync<Product>(
-                    newProduct,
+                    productToUpdate,
                     "",
-                    p => p.ID, p => p.Name, p => p.Description, p => p.CoverImagePath, p => p.Price,
+                    p => p.Name, p => p.Description, p => p.CoverImagePath, p => p.Price,
                     p => p.ProductCategoryID, p => p.ProductBrandID))
                 {
                     try
                     {
                         if (imagePath != string.Empty)
                         {
-                            DeleteCoverImageFile(newProduct.CoverImagePath);
-                            newProduct.CoverImagePath = imagePath;
+                            DeleteCoverImageFile(productToUpdate.CoverImagePath);
+                            productToUpdate.CoverImagePath = imagePath;
                         }
-                        _context.Update(newProduct);
                         await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -315,6 +313,10 @@ namespace CYShop.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
+            else if (productToUpdate == null)
+            {
+                return NotFound();
+            }
 
             ViewData["ProductBrandID"] = new SelectList(_context.Set<ProductBrand>(), "ID", "Name", product.ProductBrandID);
             ViewData["ProductCategoryID"] = new SelectList(_context.Set<ProductCategory>(), "ID", "Name", product.ProductCategoryID);
@@ -328,7 +330,7 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
-
+            
             var product = await _context.Products
                 .Include(p => p.ProductBrand)
                 .Include(p => p.ProductCategory)
@@ -337,7 +339,7 @@ namespace CYShop.Controllers
             {
                 return NotFound();
             }
-
+            
             return View(product);
         }
 
