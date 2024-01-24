@@ -130,7 +130,7 @@ namespace CYShop.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    string imagePath = string.Empty;
+                    string imagePath = "/img/example.jpg";
                     if (formFile != null && formFile.Length > 0)
                     {
                         Dictionary<string, string> uploadFileStatus = await CreateUploadFileAsync(formFile);
@@ -156,10 +156,7 @@ namespace CYShop.Controllers
                         p => p.ProductCategoryID, p => p.ProductBrandID))
                     {
 
-                        if (imagePath != string.Empty)
-                        {
-                            newProduct.CoverImagePath = imagePath;
-                        }
+                        newProduct.CoverImagePath = imagePath;
                         _context.Add(newProduct);
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
