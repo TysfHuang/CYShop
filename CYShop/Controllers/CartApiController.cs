@@ -1,6 +1,7 @@
 ﻿using CYShop.Data;
 using CYShop.Helper;
 using CYShop.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using System.Text.Json;
 
 namespace CYShop.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class CartApiController : ControllerBase
