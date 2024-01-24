@@ -4,10 +4,11 @@
     ViewData["Title"] = "產品清單";
 }
 
-
 <div class="row">
-    @await Html.PartialAsync("_Sidebar", Model)
-    <div class="col-md-10 pt-2">
+    <div class="col-md-3 col-xl-2 bg-dark">
+        @await Html.PartialAsync("_Sidebar", Model)
+    </div>
+    <div class="col-md-9 col-xl-10 pt-2">
         <div class="input-group">
             <input type="text" name="searchString" id="searchString" class="form-control" placeholder="Search">
             <div class="input-group-append">

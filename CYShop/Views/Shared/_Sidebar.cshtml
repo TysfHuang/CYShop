@@ -1,37 +1,42 @@
 ﻿@model List<ProductCategory>
 
-<div class="d-flex flex-column flex-shrink-0 col-md-2 text-bg-dark">
-    <span class="fs-4 pt-2 text-center">產品類型</span>
-    <br />
-    <ul class="nav nav-pills flex-column" id="sidebarProductCategory">
-        <li class="nav-item">
-            <a href="#" class="nav-link active">
-                ALL
-            </a>
-        </li>
-        @foreach (ProductCategory category in Model)
-        {
-            <li>
-                <a href="#" class="nav-link text-white">
-                    @category.Name
+<nav id="sidebarMenu" class="d-md-block sidebar collapse text-bg-dark">
+    <div class="position-sticky pt-3">
+        <p class="text-center">
+            <span class="fs-4 pt-2">產品類型</span>
+        </p>
+        <ul class="nav nav-pills flex-column" id="sidebarProductCategory">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">
+                    ALL
                 </a>
             </li>
-        }
-    </ul>
-    <hr>
-    <span class="fs-4 pt-2 text-center">過去7天暢銷排行榜</span>
-    <div id="sidebarHotSalesList">
-        <div class="card mb-3 text-dark bg-light container" stye="height: 50px;max-width: 100%">
-            <div class="row g-0 m-1 align-items-center">
-                <div class="col-8 col-md-12 col-lg-12 col-xl-8">
-                    <h5 class="card-title m-0">Card title</h5>
-                    <p class="m-0" style="color:red">價格:</p>
-                    <p class="card-text m-0"><small>銷售數:</small></p>
-                </div>
-                <div class="col-4 col-md-12 col-lg-12 col-xl-4">
-                    <img src="~/img/example.jpg" class="img-fluid rounded-start" style="max-height:80px">
+            @foreach (ProductCategory category in Model)
+            {
+                <li class="nav-item">
+                    <a href="#" class="nav-link text-white">
+                        @category.Name
+                    </a>
+                </li>
+            }
+        </ul>
+        <hr>
+        <p class="text-center">
+            <span class="fs-4 pt-2">過去7天暢銷排行榜</span>
+        </p>
+        <div id="sidebarHotSalesList">
+            <div class="card m-1 text-dark bg-light container" stye="height: 50px;max-width: 100%">
+                <div class="row g-0 m-1 align-items-center">
+                    <div class="col-8 col-md-12 col-lg-12 col-xl-6 col-xxl-8">
+                        <h5 class="card-title m-0">Card title</h5>
+                        <p class="m-0" style="color:red">價格:</p>
+                        <p class="card-text m-0"><small>銷售數:</small></p>
+                    </div>
+                    <div class="col-4 col-md-12 col-lg-12 col-xl-6 col-xxl-4">
+                        <img src="~/img/example.jpg" class="img-fluid rounded-start" style="max-height:80px">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</nav>
