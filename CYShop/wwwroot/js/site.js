@@ -115,7 +115,7 @@ function GetProductCard(id, title, price, imageUrl) {
             let productPrice = parseInt($(this).parent().siblings("p.card-text").text().replace("$", ""));
             AddToCart(GetCartItemObjectFormat(productId, productName, productPrice, 1));
         });
-    let btnDiv = $("<div></div>").addClass("align-self-end").append(addToCartBtn);
+    let btnDiv = $("<div></div>").addClass("align-items-end").append(addToCartBtn);
     let template = GetProductTemplate();
     template.find("img").attr("src", imageUrl);
     template.find(".card-title").text(title);
@@ -126,10 +126,10 @@ function GetProductCard(id, title, price, imageUrl) {
 }
 
 function GetProductTemplate() {
-    let template = $('<div class="card mb-3 mx-1 h-100 col flex-grow-0">\
+    let template = $('<div class="card mb-1 mx-1 h-100 col flex-grow-0">\
                         <div class= "row g-0" >\
                             <div class="col-4 col-md-12 align-self-center">\
-                              <img src="..." class="img-fluid rounded-start" alt="...">\
+                              <img src="..." class="img-fluid rounded" alt="...">\
                             </div>\
                             <div class="col-8 col-md-12">\
                               <div class="card-body">\
@@ -151,17 +151,19 @@ function GetPaginedButtonTemplate() {
 function SetPaginedList(totalPage) {
     $("#paginedList").empty();
     for (let i = 1; i <= totalPage; i++) {
-        let button1 = $("<button></button>").text(i.toString()).click(function () {
-            $(this).siblings().attr("class", "btn btn-primary");
-            $(this).attr("class", "btn btn-outline-primary disabled");
+        let a = $('<a class="page-link" href="#">1</a>').text(i.toString());
+        let button1 = $("<li></li>").click(function () {
+            $(this).siblings().attr("class", "page-item");
+            $(this).attr("class", "page-item active");
             let promises = GetProductsByCondiction(i, $("#searchString").val());
             SetProductListAndCloseLoadingSpinner(promises);
         });
+        button1.append(a);
 
         if (i == 1) {
-            button1.attr("class", "btn btn-outline-primary disabled");
+            button1.attr("class", "page-item active");
         } else {
-            button1.attr("class", "btn btn-primary");
+            button1.attr("class", "page-item");
         }
         $("#paginedList").append(button1);
     }
