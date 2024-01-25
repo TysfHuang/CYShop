@@ -107,40 +107,46 @@ function UpdateCartSummary() {
 function GetProductCard(id, title, price, imageUrl) {
     let idDiv = $("<p></p>").addClass("visually-hidden").text(id.toString());
     let addToCartBtn = $("<button></button>")
-        .addClass("btn btn-danger")
+        .addClass("btn btn-danger flex-grow-1")
         .text("加入購物車")
         .click(function () {
-            let productId = $(this).parent().siblings("p.visually-hidden").text();
-            let productName = $(this).parent().siblings("h5.card-title").text()
-            let productPrice = parseInt($(this).parent().siblings("p.card-text").text().replace("$", ""));
+            let productId = $(this).siblings("p.visually-hidden").text();
+            let productName = $(this).parentsUntil("div.col").find("h5.card-title").text()
+            let productPrice = parseInt($(this).parent().siblings("div.col-4").find("h6").text().replace("售價:", ""));
             AddToCart(GetCartItemObjectFormat(productId, productName, productPrice, 1));
         });
-    let btnDiv = $("<div></div>").addClass("align-items-end").append(addToCartBtn);
     let template = GetProductTemplate();
     template.find("img").attr("src", imageUrl);
     template.find(".card-title").text(title);
-    template.find(".card-text").text(price).css("color", "green");
-    template.find(".card-body").append(idDiv);
-    template.find(".card-body").append(btnDiv);
+
+    let priceLabel = $("<h6></h6>").text("售價:");
+    let priceTxt = $("<h6></h6>").text(price).css("color", "green");
+    let footerPrice = $("<div></div>").attr("class", "col-4 px-auto").append(priceLabel);
+    footerPrice.append(priceTxt);
+    footerPrice.append(addToCartBtn);
+    template.find(".card-footer").children().append(footerPrice);
+
+    let footerCart = $("<div></div>").attr("class", "col-8 px-auto d-flex align-self-center").append(idDiv);
+    footerCart.append(addToCartBtn);
+    template.find(".card-footer").children().append(footerCart);
     return template;
 }
 
 function GetProductTemplate() {
-    let template = $('<div class="card mb-1 mx-1 h-100 col flex-grow-0">\
-                        <div class= "row g-0" >\
-                            <div class="col-4 col-md-12 align-self-center">\
-                              <img src="..." class="img-fluid rounded" alt="...">\
-                            </div>\
-                            <div class="col-8 col-md-12">\
+    let template = $('<div class="col p-1">\
+                        <div class= "card h-100" >\
+                            <img src="..." class="card-img-top rounded" alt="...">\
                               <div class="card-body">\
                                 <h5 class="card-title">Card title</h5>\
-                                <p class="card-text">card text 1</p>\
+                                <p class="card-text"></p>\
                               </div>\
-                            </div>\
+                              <div class="card-footer">\
+                                <div class="row">\
+                                </div>\
+                              </div>\
                         </div>\
                     </div> ');
-    template.css("max-width", "500px");
-    template.css("min-width", "200px");
+    template.css("max-width", "230px");
     return template;
 }
 
@@ -159,14 +165,9 @@ function SetPaginedList(totalPage) {
             SetProductListAndCloseLoadingSpinner(promises);
         });
         button1.append(a);
-
-        if (i == 1) {
-            button1.attr("class", "page-item active");
-        } else {
-            button1.attr("class", "page-item");
-        }
         $("#paginedList").append(button1);
     }
+    ActivePaginedListFirstButton();
 }
 
 function SetProductListAsync(promises) {
@@ -256,8 +257,8 @@ function SetSortOrderPriceButtonToDefault() {
 }
 
 function ActivePaginedListFirstButton() {
-    $("#paginedList").children().attr("class", "btn btn-primary");
-    $("#paginedList button:first-child").attr("class", "btn btn-outline-primary disabled");
+    $("#paginedList").children().attr("class", "page-item");
+    $("#paginedList li:first-child").attr("class", "page-item active");
 }
 
 function SortOrderDefaultEvent() {
