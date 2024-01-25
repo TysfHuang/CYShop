@@ -23,9 +23,30 @@
         <div id="loadingSpinner" class="spinner-border m-5" role="status">
             <span class="sr-only"></span>
         </div>
-        <div id="productList" class="row row-cols-2 row-cols-sm-3 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-4">
+        <div id="productList" class="row row-cols-2 row-cols-sm-3 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-2">
+            <div class="col" style="max-width: 230px;">
+                <div class="card h-100">
+                    <img src="/img/example.jpg" class="card-img-top rounded" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Intel Core i9-13900K</h5>
+                        <p class="card-text"></p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-4 px-auto">
+                                <h6>售價:</h6>
+                                <h6 style="color: green;">22999</h6>
+                            </div>
+                            <div class="col-8 px-auto d-flex align-self-center">
+                                <p class="visually-hidden">1</p>
+                                <button class="btn btn-danger flex-grow-1">加入購物車</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <ul class="pagination" id="paginedList">
+        <ul id="paginedList" class="pagination pt-1">
         </ul>
     </div>
 </div>
