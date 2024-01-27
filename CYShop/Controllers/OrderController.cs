@@ -28,13 +28,21 @@ namespace CYShop.Controllers
             _userManager = userManager;
         }
 
+        private async Task<string> GetUserPhone()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return user.PhoneNumber != null ? user.PhoneNumber : "";
+        }
+
         [HttpGet]
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
             List<CartItem>? cart = SessionHelper.Get<List<CartItem>>(HttpContext.Session, "cart");
+            
             var order = new OrderViewModel()
             {
-                UserName = _userManager.GetUserName(User)
+                UserName = _userManager.GetUserName(User),
+                ReceiverPhone = await GetUserPhone()
             };
             
             ViewData["Cartlist"] = cart;
