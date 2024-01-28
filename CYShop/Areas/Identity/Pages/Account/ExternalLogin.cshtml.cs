@@ -30,13 +30,15 @@ namespace CYShop.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<CYShopUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public ExternalLoginModel(
             SignInManager<CYShopUser> signInManager,
             UserManager<CYShopUser> userManager,
             IUserStore<CYShopUser> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            RoleManager<IdentityRole> roleManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -44,6 +46,7 @@ namespace CYShop.Areas.Identity.Pages.Account
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -164,7 +167,7 @@ namespace CYShop.Areas.Identity.Pages.Account
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
-
+                        await SetDefaultRoleToUser(user);
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -219,6 +222,22 @@ namespace CYShop.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<CYShopUser>)_userStore;
+        }
+
+        private async Task SetDefaultRoleToUser(CYShopUser user)
+        {
+            string userRole = "User";
+            if (!await _roleManager.RoleExistsAsync(userRole))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(userRole));
+            }
+
+            if (user == null)
+            {
+                throw new Exception("The new created user error in Register!");
+            }
+
+            await _userManager.AddToRoleAsync(user, userRole);
         }
     }
 }

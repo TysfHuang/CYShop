@@ -7,6 +7,8 @@ using CYShop.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using CYShop.Helper;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<CYShopContext>(options =>
@@ -15,6 +17,15 @@ builder.Services.AddDbContext<CYShopContext>(options =>
 builder.Services.AddDefaultIdentity<CYShopUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<CYShopContext>();
+
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        IConfigurationSection googleAuthNSection =
+        builder.Configuration.GetSection("Authentication:Google");
+        options.ClientId = googleAuthNSection["ClientId"];
+        options.ClientSecret = googleAuthNSection["ClientSecret"];
+    });
 
 builder.Services.AddScoped<ICYShopRepository<Product, uint>, ProductRepository>();
 builder.Services.AddScoped<ICYShopRepository<ProductOrder, uint>, ProductOrderRepository>();

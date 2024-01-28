@@ -4,6 +4,10 @@
     ViewData["Title"] = "產品清單";
 }
 
+@section scripts {
+    <script type="text/javascript" src="~/js/site.js" asp-append-version="true"></script>
+}
+
 <div class="row">
     <div class="col-md-3 col-xl-2 bg-dark">
         @await Html.PartialAsync("_Sidebar", Model)
