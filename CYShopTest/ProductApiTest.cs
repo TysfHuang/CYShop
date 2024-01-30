@@ -356,6 +356,14 @@ namespace CYShopTests
                     ID = 12, Name = "Micron SSD 1TB", Description = t, CoverImagePath = t,
                     Price = 2488, ProductBrandID = 6, ProductCategoryID = 3, ProductCategory = new ProductCategory { ID = 3, Name = "SSD" }
                 },
+                new Product {
+                    ID = 13, Name = "Micron SSD 4TB", Description = t, CoverImagePath = t,
+                    Price = 8488, ProductBrandID = 6, ProductCategoryID = 3, ProductCategory = new ProductCategory { ID = 3, Name = "SSD" }
+                },
+                new Product {
+                    ID = 14, Name = "Micron SSD 8TB", Description = t, CoverImagePath = t,
+                    Price = 15488, ProductBrandID = 6, ProductCategoryID = 3, ProductCategory = new ProductCategory { ID = 3, Name = "SSD" }
+                },
             };
             return temp;
         }

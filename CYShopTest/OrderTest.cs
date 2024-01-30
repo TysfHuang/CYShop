@@ -70,9 +70,10 @@ namespace CYShopTests
             _session.Setup(x => x.TryGetValue(It.IsAny<string>(), out dummy)).Returns(true); //the out dummy does the trick
             _context.Setup(s => s.Session).Returns(_session.Object);
             _userManager.Setup(u => u.GetUserName(It.IsAny<ClaimsPrincipal>())).Returns(GetUser("1").UserName);
+            _userManager.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).Returns(Task.FromResult(GetUser("1")));
             _controller.ControllerContext.HttpContext = _context.Object;
 
-            var result = _controller.Checkout();
+            var result = Task.FromResult(_controller.Checkout()).Result.Result;
 
             Assert.That(result, Is.TypeOf<ViewResult>());
             Assert.That(((ViewResult)result).ViewData, Is.Not.Null);
