@@ -63,37 +63,37 @@ namespace CYShop.Controllers
             string? sortOrder,
             int? pageNum)
         {
-            Expression<Func<Product, bool>> categoryQuery = p => true;
-            Expression<Func<Product, bool>> nameQuery = p => true;
+            var query = _repository.Find(p => true);
             string currentSortOrder = sortOrder ?? "default";
             int currentPage = pageNum ?? 1;
+
             category = HtmlEncoder.Default.Encode(category);
             searchString = searchString != null ? HtmlEncoder.Default.Encode(searchString) : null;
 
-            if (category != "ALL")
+            if (!string.Equals(category, "ALL", StringComparison.OrdinalIgnoreCase))
             {
-                categoryQuery = p => p.ProductCategory.Name == category;
+                query = query.Where(p => p.ProductCategory.Name == category);
             }
-            if (!string.IsNullOrEmpty(searchString))
+
+            if (!string.IsNullOrWhiteSpace(searchString))
             {
-                nameQuery = p => p.Name.ToLower().Contains(searchString.ToLower());
+                var lowered = searchString.ToLower();
+                query = query.Where(p => p.Name.ToLower().Contains(lowered));
             }
-            var param = Expression.Parameter(typeof(Product), "p");
-            var body = Expression.AndAlso(
-                Expression.Invoke(categoryQuery, param),
-                Expression.Invoke(nameQuery, param)
-            );
-            var finalQuery = Expression.Lambda<Func<Product, bool>>(body, param);
-            var products = _repository.Find(finalQuery);
+
             switch (currentSortOrder)
             {
                 case "priceHighToLow":
-                    products = products.OrderByDescending(p => p.Price); break;
+                    query = query.OrderByDescending(p => p.Price);
+                    break;
                 case "priceLowToHigh":
-                    products = products.OrderBy(p => p.Price); break;
+                    query = query.OrderBy(p => p.Price);
+                    break;
+                default:
+                    break;
             }
-            int totalNumOfProduct = products.Count();
-            var result = await products
+            int totalNumOfProduct = await query.CountAsync();
+            var result = await query
                 .Skip((currentPage - 1) * GetPageSize())
                 .Take(GetPageSize())
                 .Select(p => new ProductDTO(p))
